@@ -322,13 +322,19 @@ def add_archive_body(doc: Document, source_paragraphs, redactions: Counter[str])
     return counts
 
 
+def scan_redactions(source_paragraphs) -> Counter[str]:
+    stats: Counter[str] = Counter()
+    for paragraph in source_paragraphs:
+        redact(paragraph.text, stats)
+    return stats
+
 def main() -> None:
     if not SOURCE.exists():
         raise FileNotFoundError(SOURCE)
     source_hash = sha256(SOURCE)
     source_doc = Document(SOURCE)
     source_paragraphs = list(source_doc.paragraphs)
-    redactions: Counter[str] = Counter()
+    redactions = scan_redactions(source_paragraphs)
 
     doc = Document()
     setup_styles(doc)
@@ -351,7 +357,7 @@ def main() -> None:
         if match:
             counts[match.group(0)] += 1
     add_front_matter(doc, source_paragraphs, counts, redactions, source_hash)
-    body_counts = add_archive_body(doc, source_paragraphs, redactions)
+    body_counts = add_archive_body(doc, source_paragraphs, Counter())
 
     # Store both raw-label and normalized counts in core properties for quick machine inspection.
     doc.core_properties.title = "ALIS 原生人机交互记录：完整可读研究版"
