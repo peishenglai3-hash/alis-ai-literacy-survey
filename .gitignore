@@ -1,0 +1,39 @@
+# Secrets and local environment
+**/.env
+**/*.env
+!**/.env.example
+
+# Local databases and personal collection data
+**/*.db
+**/*.db-wal
+**/*.db-shm
+**/*.sqlite
+**/*.sqlite3
+**/exports/
+**/*_export*/
+**/audio_raw/
+**/audio/
+**/alis_wide.csv
+**/alis_long.csv
+**/alis_codebook.csv
+**/alis_stats.json
+**/alis_export*.zip
+
+# Generated build/dependency output
+**/node_modules/
+**/__pycache__/
+**/*.pyc
+**/.pytest_cache/
+**/.ruff_cache/
+**/.vite/
+**/dist/
+**/*.tar.gz
+
+# Sensitive raw archive and environment-specific deployment helper
+交互记录/ALIS开发交互全记录_人机协作原始档案.docx
+alis-mvp/ops/采集机_ALIS隧道.bat
+
+# Editors and OS files
+.DS_Store
+.idea/
+.vscode/

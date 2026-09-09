@@ -1,0 +1,463 @@
+/* ALIS OpenDiscussionScreen — v3.6 开放性空间认知地图布局。
+   来源：727反馈2.0/开放性空间_认知地图式原型.html（视觉基准）
+         + 给开发者_开放性空间与概念总结页面界面修改.md
+   策略：三区布局（中央焦点60% + 右侧导航35% + 底部对话记录），
+   使用 --ds-* 设计令牌，与访谈引擎视觉系统一致。
+   核心目标：1920×1080 视口下一屏可达、零纵向滚动。 */
+
+/* ============================================================
+   容器：全高 flex 列布局（继承自 .app--fullwidth）
+   ============================================================ */
+.od-container {
+  flex: 1 1 auto;
+  min-height: 0;
+  max-width: 1400px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ---- 顶部标题区 ---- */
+.od-header {
+  text-align: center;
+  margin-bottom: 18px;
+  flex: 0 0 auto;
+}
+.od-completion-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, var(--ds-done, #3f9d77), #5cb896);
+  color: #fff;
+  padding: 8px 20px;
+  border-radius: 24px;
+  font-size: 13.5px;
+  font-weight: 500;
+  margin-bottom: 14px;
+  box-shadow: 0 4px 12px rgba(63, 157, 119, 0.3);
+}
+.od-title {
+  font-family: var(--ds-serif);
+  font-size: 28px;
+  color: var(--ds-ink);
+  margin: 0 0 8px;
+}
+.od-subtitle {
+  font-size: 14.5px;
+  color: var(--ds-muted);
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+/* ============================================================
+   主要内容区 — 两栏 flex 布局
+   ============================================================ */
+.od-main {
+  display: flex;
+  gap: 24px;
+  flex: 1 1 auto;
+  min-height: 0;
+  margin-bottom: 16px;
+}
+
+/* ---- 左侧焦点区 60% ---- */
+.od-focus {
+  flex: 0 0 60%;
+  background: var(--ds-surface, #fff);
+  border-radius: var(--ds-r-card, 14px);
+  padding: 28px 30px 20px;
+  box-shadow: var(--ds-shadow-card);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  animation: od-rise 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+.od-focus-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--ds-line, #e3ddd1);
+}
+.od-focus-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, var(--ds-accent, #6957c9), #8b7dd4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  flex-shrink: 0;
+  color: #fff;
+}
+.od-focus-title-group {
+  flex: 1;
+}
+.od-focus-title {
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--ds-ink);
+  margin: 0 0 4px;
+}
+.od-focus-dimension {
+  font-size: 12px;
+  color: var(--ds-muted);
+  font-family: var(--ds-mono);
+}
+.od-focus-content {
+  flex: 1;
+  overflow-y: auto;
+}
+.od-focus-content::-webkit-scrollbar {
+  width: 5px;
+}
+.od-focus-content::-webkit-scrollbar-thumb {
+  background: var(--ds-faint);
+  border-radius: 3px;
+}
+
+/* ---- 焦点区问题卡片 ---- */
+.od-question-item {
+  background: var(--ds-surface-2, #f6f3ec);
+  border-radius: 14px;
+  padding: 16px 20px;
+  margin-bottom: 12px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+.od-question-item:hover {
+  background: var(--ds-accent-soft, #ece9f7);
+  transform: translateX(4px);
+}
+.od-question-text {
+  font-size: 15px;
+  color: var(--ds-ink-2, #4a4754);
+  line-height: 1.7;
+  margin: 0;
+}
+.od-question-purpose {
+  font-size: 12px;
+  color: var(--ds-muted);
+  margin: 6px 0 0;
+  font-style: italic;
+}
+
+/* ---- 问题记录区 ---- */
+.od-expand-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+  padding: 8px 16px;
+  background: #fff;
+  border: 2px dashed var(--ds-line, #e3ddd1);
+  border-radius: 12px;
+  color: var(--ds-muted);
+  font-size: 13px;
+}
+
+/* ---- 右侧导航区 35% ---- */
+.od-nav {
+  flex: 0 0 35%;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  overflow-y: auto;
+}
+.od-nav::-webkit-scrollbar {
+  width: 5px;
+}
+.od-nav::-webkit-scrollbar-thumb {
+  background: var(--ds-faint);
+  border-radius: 3px;
+}
+.od-nav-head {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ds-muted);
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
+}
+.od-nav-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+
+/* ---- 导航卡片 ---- */
+.od-nav-card {
+  background: #fff;
+  border-radius: 14px;
+  padding: 16px 18px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  position: relative;
+  box-shadow: var(--ds-shadow-soft);
+  border: 2px solid transparent;
+}
+.od-nav-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(33, 31, 38, 0.12);
+}
+.od-nav-card.active {
+  border-color: var(--ds-accent, #6957c9);
+  background: linear-gradient(135deg, var(--ds-surface-2, #f6f3ec) 0%, var(--ds-accent-soft, #ece9f7) 100%);
+}
+
+/* 左侧色条（4色循环） */
+.od-nav-card::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 14px;
+  bottom: 14px;
+  width: 4px;
+  border-radius: 2px;
+}
+.od-nav-card:nth-child(6n+1)::before { background: var(--ds-accent, #6957c9); }
+.od-nav-card:nth-child(6n+2)::before { background: var(--ds-done, #3f9d77); }
+.od-nav-card:nth-child(6n+3)::before { background: var(--ds-ai, #bd7a2e); }
+.od-nav-card:nth-child(6n+4)::before { background: #5b8cc9; }
+.od-nav-card:nth-child(6n+5)::before { background: #c96b9e; }
+.od-nav-card:nth-child(6n+6)::before { background: var(--ds-ink, #211f26); }
+
+.od-nav-card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.od-nav-card-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  background: var(--ds-surface-2, #f6f3ec);
+  flex-shrink: 0;
+}
+.od-nav-card-title-group {
+  flex: 1;
+  min-width: 0;
+}
+.od-nav-card-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ds-ink);
+  margin: 0 0 1px;
+}
+.od-nav-card-dimension {
+  font-size: 10.5px;
+  color: var(--ds-muted);
+  font-family: var(--ds-mono);
+}
+.od-nav-card-preview {
+  font-size: 12.5px;
+  color: var(--ds-muted);
+  line-height: 1.5;
+  margin: 0;
+}
+.od-nav-card-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--ds-accent-soft, #ece9f7);
+  color: var(--ds-accent, #6957c9);
+  font-size: 11px;
+  font-weight: 600;
+  font-family: var(--ds-mono);
+}
+
+/* ---- 路径指示器 ---- */
+.od-path-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  background: #fff;
+  border-radius: 10px;
+  font-size: 11.5px;
+  color: var(--ds-muted);
+  margin-top: 10px;
+  border: 1px solid var(--ds-line-soft, #ece7dc);
+}
+
+/* ============================================================
+   底部对话记录区
+   ============================================================ */
+.od-dialogue {
+  background: #fff;
+  border-radius: 14px;
+  padding: 18px 22px;
+  box-shadow: var(--ds-shadow-soft);
+  flex: 0 0 auto;
+}
+.od-dialogue-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.od-dialogue-icon {
+  font-size: 18px;
+}
+.od-dialogue-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ds-ink);
+  margin: 0;
+}
+.od-dialogue-input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 2px solid var(--ds-line, #e3ddd1);
+  border-radius: 10px;
+  font-size: 13.5px;
+  color: var(--ds-ink-2, #4a4754);
+  font-family: var(--ds-sans);
+  resize: vertical;
+  min-height: 64px;
+  transition: all 0.2s ease;
+  background: #fff;
+}
+.od-dialogue-input:focus {
+  outline: none;
+  border-color: var(--ds-accent, #6957c9);
+  background: var(--ds-surface-2, #f6f3ec);
+}
+.od-dialogue-input::placeholder {
+  color: #b8b3a7;
+}
+.od-dialogue-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+/* ---- 导航按钮 ---- */
+.od-nav-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+  margin-top: 14px;
+  flex: 0 0 auto;
+}
+.od-btn {
+  font-family: var(--ds-sans);
+  font-size: 14px;
+  font-weight: 500;
+  padding: 12px 28px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+}
+.od-btn.secondary {
+  background: #fff;
+  color: var(--ds-muted);
+  border: 2px solid var(--ds-line, #e3ddd1);
+}
+.od-btn.secondary:hover {
+  border-color: var(--ds-faint);
+  color: var(--ds-ink);
+}
+.od-btn.primary {
+  background: var(--ds-ink, #211f26);
+  color: #fff;
+}
+.od-btn.primary:hover {
+  background: #000;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+.od-btn.save {
+  background: var(--ds-accent, #6957c9);
+  color: #fff;
+  font-size: 13px;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: var(--ds-sans);
+  transition: all 0.15s ease;
+}
+.od-btn.save:hover {
+  filter: brightness(0.92);
+}
+.od-btn.save:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ---- 当前讨论指示 ---- */
+.od-current-topic {
+  font-size: 12px;
+  color: var(--ds-muted);
+  margin-bottom: 8px;
+}
+.od-current-topic span {
+  font-weight: 600;
+  color: var(--ds-accent, #6957c9);
+}
+
+/* ============================================================
+   动效
+   ============================================================ */
+@keyframes od-rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ============================================================
+   响应式：窄屏降级单栏（≤1024px）
+   ============================================================ */
+@media (max-width: 1024px) {
+  .od-container {
+    overflow: auto;
+    height: auto;
+    min-height: 100vh;
+  }
+  .od-main {
+    flex-direction: column;
+  }
+  .od-focus,
+  .od-nav {
+    flex: none;
+    width: 100%;
+  }
+  .od-nav-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .od-nav-grid {
+    grid-template-columns: 1fr;
+  }
+  .od-focus-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

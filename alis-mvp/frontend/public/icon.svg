@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="96" fill="#2f6f5e"/>
+  <!-- 访谈气泡：ALIS 情境化访谈的意象（占位 logo，可替换） -->
+  <path d="M136 140h240a40 40 0 0 1 40 40v128a40 40 0 0 1-40 40H236l-64 52v-52h-36a40 40 0 0 1-40-40V180a40 40 0 0 1 40-40z" fill="#ffffff"/>
+  <circle cx="196" cy="244" r="18" fill="#2f6f5e"/>
+  <circle cx="256" cy="244" r="18" fill="#2f6f5e"/>
+  <circle cx="316" cy="244" r="18" fill="#2f6f5e"/>
+</svg>

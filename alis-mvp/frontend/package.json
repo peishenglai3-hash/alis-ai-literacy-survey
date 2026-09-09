@@ -1,0 +1,37 @@
+{
+  "name": "alis-frontend",
+  "private": true,
+  "type": "module",
+  "version": "0.2.0-s4",
+  "description": "ALIS 评分内核(S2) + 采集界面(S4)。逻辑在状态机，LLM 只碰语言。UI 离线可用，追问经后端 S3 渲染。",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@xstate/react": "^5.0.0",
+    "pdfmake": "^0.3.11",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-error-boundary": "^4.1.2",
+    "xstate": "^5.19.0"
+  },
+  "devDependencies": {
+    "@testing-library/react": "^16.0.1",
+    "@types/js-yaml": "^4.0.9",
+    "@types/node": "^20.14.0",
+    "@types/pdfmake": "^0.3.3",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.4",
+    "js-yaml": "^4.1.0",
+    "jsdom": "^25.0.1",
+    "typescript": "^5.5.0",
+    "vite": "^5.4.11",
+    "vitest": "^2.1.0"
+  }
+}

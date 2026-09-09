@@ -1,0 +1,387 @@
+/* RecordViewModal — v3.6.4 记录查看弹窗样式。
+   使用 --ds-* 设计令牌，匹配 ALIS 暖纸调色板。 */
+
+/* ============================================================
+   遮罩层
+   ============================================================ */
+.rvm-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(2px);
+  padding: 20px;
+  animation: rvm-fade-in 0.2s ease both;
+}
+
+@keyframes rvm-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* ============================================================
+   卡片主体
+   ============================================================ */
+.rvm-card {
+  max-width: 600px;
+  width: 100%;
+  max-height: 80vh;
+  background: var(--ds-surface, #fff);
+  border-radius: 14px;
+  box-shadow: 0 12px 48px -12px rgba(33, 31, 38, 0.3);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: rvm-slide-up 0.25s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+@keyframes rvm-slide-up {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* ============================================================
+   头部
+   ============================================================ */
+.rvm-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid var(--ds-line-soft, #ede8db);
+  flex-shrink: 0;
+}
+
+.rvm-title {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--ds-ink);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.rvm-count {
+  font-family: var(--ds-mono);
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--ds-accent, #6957c9);
+  background: var(--ds-accent-soft, #ece6f7);
+  padding: 2px 10px;
+  border-radius: 999px;
+}
+
+.rvm-close-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid var(--ds-line, #e3ddd1);
+  background: #fff;
+  color: var(--ds-muted);
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+.rvm-close-btn:hover {
+  background: var(--ds-surface-2, #f6f3ec);
+  color: var(--ds-ink);
+}
+
+/* ============================================================
+   内容体
+   ============================================================ */
+.rvm-body {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding: 16px 24px;
+  min-height: 120px;
+}
+
+/* 空状态 */
+.rvm-empty {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--ds-muted);
+}
+.rvm-empty-icon {
+  font-size: 2.5rem;
+  display: block;
+  margin-bottom: 12px;
+}
+.rvm-empty p {
+  margin: 0 0 4px;
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+.rvm-empty-hint {
+  font-size: 0.8rem !important;
+  color: var(--ds-faint);
+}
+
+/* ============================================================
+   记录列表
+   ============================================================ */
+.rvm-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.rvm-item {
+  border: 1px solid var(--ds-line, #e3ddd1);
+  border-radius: 10px;
+  padding: 14px 16px;
+  background: #fcfbf8;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.rvm-item:hover {
+  border-color: var(--ds-faint, #c5bfb0);
+}
+.rvm-item.editing {
+  border-color: var(--ds-accent, #6957c9);
+  box-shadow: 0 0 0 2px var(--ds-accent-soft, rgba(105,87,201,0.12));
+  background: #fff;
+}
+
+/* 记录内容 */
+.rvm-item-body {
+  margin-bottom: 10px;
+}
+
+.rvm-field {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  font-size: 0.85rem;
+  line-height: 1.55;
+  padding: 3px 0;
+}
+.rvm-field.note {
+  color: var(--ds-accent, #6957c9);
+}
+.rvm-field.reply {
+  color: var(--ds-done, #3f9d77);
+}
+.rvm-field.empty-record {
+  color: var(--ds-faint);
+  font-style: italic;
+  font-size: 0.8rem;
+}
+
+.rvm-field-icon {
+  flex-shrink: 0;
+  font-size: 0.85rem;
+}
+.rvm-field-label {
+  flex-shrink: 0;
+  font-family: var(--ds-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.03em;
+  color: var(--ds-muted);
+  padding-top: 1px;
+}
+.rvm-field-text {
+  color: var(--ds-ink-2);
+  word-break: break-word;
+}
+
+/* 元信息行 */
+.rvm-item-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.rvm-time {
+  font-family: var(--ds-mono);
+  font-size: 0.7rem;
+  color: var(--ds-faint);
+}
+
+.rvm-sync-badge {
+  font-family: var(--ds-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.03em;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-weight: 500;
+}
+.rvm-sync-badge.local {
+  background: #fff8e6;
+  color: #8a6d14;
+}
+.rvm-sync-badge.synced {
+  background: #eaf5ee;
+  color: #2d6a4f;
+}
+
+/* 操作按钮行 */
+.rvm-item-actions {
+  display: flex;
+  gap: 6px;
+}
+
+/* ============================================================
+   编辑表单
+   ============================================================ */
+.rvm-edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.rvm-edit-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.rvm-edit-label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--ds-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.03em;
+  color: var(--ds-muted);
+  text-transform: uppercase;
+}
+
+.rvm-edit-icon {
+  font-size: 0.8rem;
+}
+
+.rvm-edit-input,
+.rvm-edit-textarea {
+  font-family: var(--ds-sans);
+  font-size: 0.85rem;
+  color: var(--ds-ink);
+  border: 1px solid var(--ds-line, #e3ddd1);
+  border-radius: 8px;
+  padding: 8px 10px;
+  outline: none;
+  background: #fff;
+  transition: border-color 0.15s ease;
+  resize: vertical;
+}
+.rvm-edit-input:focus,
+.rvm-edit-textarea:focus {
+  border-color: var(--ds-accent, #6957c9);
+  box-shadow: 0 0 0 2px var(--ds-accent-soft, rgba(105,87,201,0.12));
+}
+.rvm-edit-input::placeholder,
+.rvm-edit-textarea::placeholder {
+  color: var(--ds-faint);
+}
+
+.rvm-edit-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+/* ============================================================
+   按钮
+   ============================================================ */
+.rvm-btn {
+  font-family: var(--ds-sans);
+  font-size: 0.8rem;
+  font-weight: 500;
+  padding: 6px 14px;
+  border-radius: 7px;
+  cursor: pointer;
+  border: 1px solid var(--ds-line, #e3ddd1);
+  background: #fff;
+  color: var(--ds-ink-2);
+  transition: all 0.15s ease;
+}
+.rvm-btn:hover {
+  border-color: var(--ds-faint, #c5bfb0);
+  color: var(--ds-ink);
+}
+
+.rvm-btn.small {
+  font-size: 0.72rem;
+  padding: 4px 10px;
+}
+
+.rvm-btn.edit {
+  color: var(--ds-accent, #6957c9);
+  border-color: var(--ds-accent-soft, #ece6f7);
+}
+.rvm-btn.edit:hover {
+  background: var(--ds-accent-soft, #ece6f7);
+}
+
+.rvm-btn.delete {
+  color: #c44;
+  border-color: #fce4e4;
+}
+.rvm-btn.delete:hover {
+  background: #fef0f0;
+}
+
+.rvm-btn.save {
+  background: var(--ds-accent, #6957c9);
+  color: #fff;
+  border-color: var(--ds-accent, #6957c9);
+}
+.rvm-btn.save:hover {
+  background: var(--ds-accent-dark, #5444b8);
+}
+
+.rvm-btn.cancel {
+  color: var(--ds-muted);
+}
+
+/* ============================================================
+   底部
+   ============================================================ */
+.rvm-footer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border-top: 1px solid var(--ds-line-soft, #ede8db);
+  font-size: 0.78rem;
+  color: var(--ds-muted);
+  flex-shrink: 0;
+  background: var(--ds-surface-2, #f6f3ec);
+}
+
+.rvm-footer-icon {
+  font-size: 1rem;
+}
+
+.rvm-footer strong {
+  color: var(--ds-ink);
+  font-weight: 600;
+}
+
+/* ============================================================
+   响应式
+   ============================================================ */
+@media (max-width: 640px) {
+  .rvm-card {
+    max-height: 90vh;
+    border-radius: 12px;
+  }
+  .rvm-header {
+    padding: 14px 16px 12px;
+  }
+  .rvm-body {
+    padding: 12px 16px;
+  }
+  .rvm-footer {
+    padding: 10px 16px;
+    font-size: 0.72rem;
+  }
+}

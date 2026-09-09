@@ -1,0 +1,23 @@
+SQLAlchemy>=2.0
+alembic>=1.13
+PyYAML>=6.0
+pytest>=8.0
+
+# S3 追问闭环
+fastapi>=0.110
+httpx>=0.27          # FastAPI TestClient 依赖（测试用）
+# litellm 仅生产 LLM 调用需要；测试用 StubLLMClient 不依赖它。
+# 部署前装：pip install litellm
+# litellm>=1.40
+
+# 应用层账号认证（管理员/促进者两级；argon2id 密码哈希）
+# 阿里云镜像有 manylinux wheel，无需编译器：
+#   pip install -i https://mirrors.aliyun.com/pypi/simple argon2-cffi
+argon2-cffi>=23.1
+
+# S4 采集端点服务（本地/内网跑真机流程用）
+uvicorn>=0.30
+
+# S5 本地 Whisper 转写（仅生产音频转写需要；测试用 StubTranscriber 不依赖）。
+# 部署前装：pip install faster-whisper
+# faster-whisper>=1.0

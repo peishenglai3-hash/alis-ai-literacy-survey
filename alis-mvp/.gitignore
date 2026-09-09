@@ -1,0 +1,43 @@
+# 密钥与本地环境
+.env
+*.env
+!.env.example
+
+# 采集数据库（含真实个人数据，绝不入库/外发）
+*.db
+*.db-wal
+*.db-shm
+alis_local.db
+
+# 汇聚导出的 CSV（含个人数据，绝不入库/外发）
+_export_smoke/
+alis_wide.csv
+alis_long.csv
+alis_codebook.csv
+alis_stats.json
+alis_export*.zip
+*_export*/
+
+# 采集的音频原始文件（本地 Whisper 转写后 ≤7 天删）
+*.wav
+*.webm
+*.m4a
+*.mp3
+audio_raw/
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+venv/
+
+# Node
+node_modules/
+dist/
+.vite/
+
+# 编辑器
+.DS_Store
+.idea/
+.vscode/

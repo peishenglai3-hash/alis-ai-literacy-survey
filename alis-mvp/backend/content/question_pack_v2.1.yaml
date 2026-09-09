@@ -1,0 +1,389 @@
+# ============================================================================
+# ALIS Question Pack v2.1  —— 可编辑内容承载（S1 交付物 · S3 校正版）
+# ============================================================================
+# ⚠️ 【师门 7 月末可改】本文件是 ALIS 的"内容板块"。量表题目、维度归属、
+#    追问树骨架、人格文案、LLM 注入理论包全部在此，师门 7 月末开会可直接改本
+#    文件，**不需要改任何代码**。逻辑层（评分/分支/追问决策）不读死这里的文案，
+#    只按 id 与结构取值。
+#
+# 【8 月锁定纪律】8 月 MVP 不加题 / 不删题 / 不改题干（保 MAILS 等信效度
+#    复用辩护 + 赶 8/1 窗口）。题干 8 月不动；扩题推迟明春（N≥300）。
+#
+# 【铁律】LLM 只负责语言，不负责逻辑。probe_tree 只是"骨架分支结构"，
+#    LLM 后续只把节点填成一句自然追问，不做分支决策。
+#
+# 【维度归属已按量表原文校正 · 2026-07-10】
+#    依据：量表 2.0 原文（_scale_utf8.txt 第 123-236 行）给出的 A-G 权威分维，
+#    以 MAILS 为主框架、清华补充日常使用与隐私、SNAIL 补充社会与批判维度。
+#    校正两处（对 S1 provisional 映射）：Q5(AI协作)→D2 Apply、Q12(抗说服)→D6 人与AI关系。
+#    校正后七维题数 [2,3,2,2,2,2,2]，无单题维度（D6 恢复量表原文的 Q12+Q13 两题）。
+#    仍属"内容"，师门 7 月末可最终确认/重划。
+#
+# 【评分锚点：6 点去中点 · 2026-07-11 赖培胜定走"路 B"】（点 3 落地）
+#    likert 由 1–7 改为 1–6（去中立点，逼出方向），每点全标注（labels_zh）+
+#    校准参照卡（reference_card_zh），减小各人尺度差异。这是 measurement 决策，
+#    **纯内容改动**：评分/分支/CI/百分位全部从 likert.min/max 派生（midpoint 自动
+#    =3.5），逻辑代码零改。师门 7 月末如欲回 7 点/换锚点，只改本段即可。
+#    ⚠️ tradeoff（已记档）：改点数损与 MAILS 原表的直接可比性，方法记录中说明量表转换。
+#
+# 【类 MBTI 字母码：type_code 段 · 2026-07-11】（点 4 落地）
+#    在"连续剖面 + CI"之上叠加的风格速记标签（非硬类型），见文件末 type_code 段。
+#    字母/极名/选轴/切点来源全部在此可编辑；确定性纯函数 deriveTypeCode 据此渲染，
+#    LLM 不参与（铁律）。CI 跨切点 → 该轴"未分化"（小写字母），如实表达均衡。
+# ============================================================================
+
+scale_version: "2.2-draft"
+scale_title: "AI Literacy Interview Scale（ALIS）v0.1——用于情境化访谈的AI素养评测量表"
+theory_basis: "基于已有权威量表（MAILS 为主，清华补充，SNAIL 补充社会维度）重构的情境化访谈工具，非新量表——保学术可追溯性，避免重做信效度检验。"
+likert:
+  # 6 点去中点（路 B，2026-07-11）。midpoint 由代码派生 =(1+6)/2=3.5：
+  # raw∈{4,5,6}→high 分支、{1,2,3}→low 分支（无值恰落切点）。反向计分 =(1+6)-raw。
+  min: 1
+  max: 6
+  anchor_low: "非常不同意（1）"
+  anchor_high: "非常同意（6）"
+  # 全标注等距同意锚点：每点有词、左右对称、去中立（师门 7 月末可改）。
+  labels_zh:
+    1: "非常不同意"
+    2: "比较不同意"
+    3: "有点不同意"
+    4: "有点同意"
+    5: "比较同意"
+    6: "非常同意"
+  # 校准参照卡：给每点一句可操作描述，让不同受访者对齐尺度（促进者可念/剖面页可展开）。
+  reference_card_zh:
+    1: "这句几乎完全不符合我 / 我几乎从不这样"
+    2: "多数情况下不符合我"
+    3: "偏向不符合，但有例外"
+    4: "偏向符合，但不稳定"
+    5: "多数情况下符合我"
+    6: "这句非常符合我 / 我几乎总是这样"
+
+# ---- v2.0 简单模式 7 点 Likert（师门新设计 · 2026-07-22） ----
+likert_simple:
+  min: 1
+  max: 7
+  anchor_low: "非常不同意（1）"
+  anchor_high: "非常同意（7）"
+  labels_zh:
+    1: "非常不同意"
+    2: "比较不同意"
+    3: "有点不同意"
+    4: "中立 / 不确定"
+    5: "有点同意"
+    6: "比较同意"
+    7: "非常同意"
+  reference_card_zh:
+    1: "这句几乎完全不符合我 / 我几乎从不这样"
+    2: "多数情况下不符合我"
+    3: "偏向不符合，但有例外"
+    4: "中立或不确定 / 我还没形成稳定的感觉"
+    5: "偏向符合，但不稳定"
+    6: "多数情况下符合我"
+    7: "这句非常符合我 / 我几乎总是这样"
+intro_zh: "下面是一些关于AI使用经验的描述，没有标准答案，请根据自己的真实情况，选择你对每句话的认同程度。"
+
+# ---------------------------------------------------------------------------
+# 受访者端"相对位置"伦理说明（师门 7 月末可改）
+# S0/S2 决策：MVP 无常模样本，剖面用"量表内相对位置"，不是人群百分位。
+# 本文案由 S4 剖面页渲染，向受访者如实说明，避免被误读为"排名/优劣"。
+# ---------------------------------------------------------------------------
+profile_disclaimer:
+  enabled: true
+  short_zh: "这里显示的是你在本量表内部各维度的相对位置，不是与他人比较的排名，也没有'好坏'之分。"
+  long_zh: >
+    需要说明：本次结果基于你在本量表 15 道题上的作答，在量表内部做相对呈现，
+    用于引导你回顾和反思自己的 AI 使用经验；它不是标准化人群百分位，也不代表
+    你在同龄人中的排名或能力高低。不同维度只呈现你自身的倾向差异，没有哪一维
+    "更好"。规模化常模将于后续研究（更大样本）建立后另行提供。
+
+# ---------------------------------------------------------------------------
+# 七维度（按量表原文 A-G 权威分组 · 附 MAILS/清华/SNAIL 理论来源 · 师门可改）
+# ---------------------------------------------------------------------------
+dimensions:
+  - id: D1
+    name_zh: "识别 AI"
+    name_en: "Detect AI"
+    ref_scale: "MAILS: Detect AI；清华：AI 识别"
+    part_zh: "AI 在哪里？"
+    personality_copy: "你对身边 AI 的存在有较强的辨识雷达。"   # 人格剖面文案占位 · 师门可改
+  - id: D2
+    name_zh: "使用 AI"
+    name_en: "Apply AI"
+    ref_scale: "MAILS: Meaningful Use；清华：选择 AI；新增 AI Collaboration（属 Apply，非新维度）"
+    part_zh: "你怎么用？"
+    personality_copy: "你倾向让 AI 服务于真实目标，而非把玩功能。"
+  - id: D3
+    name_zh: "学习与问题解决"
+    name_en: "Learning & Problem-solving"
+    ref_scale: "MAILS: Learning / AI Problem-solving（利用AI而非AI代解）；清华：Learning AI"
+    part_zh: "你怎么用？"
+    personality_copy: "面对新工具与复杂问题，你能逐步驯服它。"
+  - id: D4
+    name_zh: "理解 AI"
+    name_en: "Understand AI"
+    ref_scale: "MAILS: Understand AI + Persuasion（融合）；AI 边界判断"
+    part_zh: "你怎么判断？"
+    personality_copy: "你对 AI 的输出保持'先掂量再采信'的姿态。"
+  - id: D5
+    name_zh: "伦理与社会"
+    name_en: "AI Ethics & Society"
+    ref_scale: "MAILS: AI Ethics；SNAIL：社会影响；清华：Privacy"
+    part_zh: "AI 怎样影响社会？"
+    personality_copy: "你使用 AI 时会想到它对他人与社会的涟漪。"
+  - id: D6
+    name_zh: "人与 AI 关系"
+    name_en: "AI Self-Competency"
+    ref_scale: "MAILS: Persuasion Literacy（Q12）+ Emotion Regulation（Q13）"
+    part_zh: "AI 怎样影响你？"
+    personality_copy: "面对 AI 的说服与挫败，你能守住自己的判断与节奏。"
+  - id: D7
+    name_zh: "反思能力"
+    name_en: "Reflection"
+    ref_scale: "唯一新增维度（STS 核心，呼应加芬克尔成员分类）：认知变化 + 把素养当作实践"
+    part_zh: "你怎么看 AI？"
+    personality_copy: "你会回看 AI 如何改变了你自己的认知与原则。"
+
+# ---------------------------------------------------------------------------
+# 15 题（题干 8 月不动 · 维度归属按量表原文校正 · 追问骨架/类型标签师门可改）
+# statement_types 五类：能力 / 实践 / 经验 / 情境 / 倾向（叙事触发器）
+# ref_scale：该题参考的权威量表维度（学术可追溯性）
+# probe_tree：high=选 5-6 分走的骨架，low=选 1-2 分走的骨架（占位描述，非最终文案）
+# ---------------------------------------------------------------------------
+items:
+  - id: Q1
+    dimension: D1
+    stem_zh: "我通常能够判断，一个应用或服务是否真正使用了AI，而不仅仅是在宣传中提到AI。"
+    statement_types: [能力, 实践]
+    ref_scale: "MAILS: Detect AI；清华：AI 识别（避免只认 Logo/宣传）"
+    reverse_scored: false
+    probe_tree:
+      high: "选 5-6 分 → 追问：最近一次这样的判断是什么时候？当时凭什么线索认定它'真用了 AI'？"
+      low:  "选 1-2 分 → 追问：什么让这件事难判断？举一个你拿不准的例子。"
+
+  - id: Q2
+    dimension: D1
+    stem_zh: "我发现，自己已经越来越容易注意到生活中哪些地方正在使用AI。"
+    statement_types: [经验, 倾向]
+    ref_scale: "MAILS: Detect（改写为经验陈述 Experience Statement，引生活世界）"
+    reverse_scored: false
+    probe_tree:
+      high: "选 5-6 分 → 追问：这种'越来越注意到'是从什么时候开始的？有具体触发的经历吗？"
+      low:  "选 1-2 分 → 追问：是没太留意，还是觉得分不清？"
+
+  - id: Q3
+    dimension: D2
+    stem_zh: "我通常能够利用AI帮助自己完成真正想完成的事情，而不仅仅是尝试新功能。"
+    statement_types: [能力, 实践]
+    ref_scale: "MAILS: Meaningful Use"
+    reverse_scored: false
+    probe_tree:
+      high: "选 5-6 分 → 追问：说一件你最近真正靠 AI 完成的事，它替你解决了什么？"
+      low:  "选 1-2 分 → 追问：更多停留在'试功能'阶段吗？卡在哪一步没接上真实任务？"
+
+  - id: Q4
+    dimension: D2
+    stem_zh: "面对同一个任务，我通常知道应该选择哪一种AI工具，而不是随便使用一个。"
+    statement_types: [能力, 情境]
+    ref_scale: "清华：选择 AI"
+    reverse_scored: false
+    probe_tree:
+      high: "选 5-6 分 → 追问：举个例子，你会怎么在两个工具之间做取舍？"
+      low:  "选 1-2 分 → 追问：一般是随手打开常用的那个，还是不知道有哪些选项？"
+
+  - id: Q5
+    dimension: D2
+    stem_zh: "当AI没有理解我的意思时，我通常会尝试调整表达，而不是马上放弃。"
+    statement_types: [倾向, 情境]
+    ref_scale: "新增 AI Collaboration（属 Apply，非新维度）"
+    reverse_scored: false
+    probe_tree:
+      high: "选 5-6 分 → 追问：回想一次你反复改说法直到 AI 懂了的经历。"
+      low:  "选 1-2 分 → 追问：更容易直接放弃，还是换别的办法？"
+
+  - id: Q6
+    dimension: D3
+    stem_zh: "学习新的AI工具，对我来说通常是一件比较容易的事情。"
+    statement_types: [能力, 经验]
+    ref_scale: "MAILS: Learning；清华：Learning AI"
+    reverse_scored: false
+    probe_tree:
+      high: "选 5-6 分 → 追问：上一个你自学上手的新工具是什么？怎么摸熟的？"
+      low:  "选 1-2 分 → 追问：难在哪——界面、概念，还是不知从何学起？"
+
+  - id: Q7
+    dimension: D3
+    stem_zh: "即使遇到比较复杂的问题，我也能够逐步利用AI帮助自己找到解决办法。"
+    statement_types: [能力, 实践]
+    ref_scale: "MAILS: AI Problem-solving（利用 AI 逐步求解，非 AI 代解）"
+    reverse_scored: false
+    probe_tree:
+      high: "选 5-6 分 → 追问：讲一个你把复杂问题拆着问、一步步逼近答案的过程。"
+      low:  "选 1-2 分 → 追问：复杂问题上你通常在哪一步接不下去？"
+
+  - id: Q8
+    dimension: D4
+    stem_zh: "面对AI给出的回答，我通常能够判断它什么时候值得相信，什么时候需要进一步确认。"
+    statement_types: [能力, 倾向]
+    ref_scale: "MAILS: Understand AI + Persuasion（融合）"
+    reverse_scored: false
+    probe_tree:
+      high: "选 5-6 分 → 追问：你靠什么信号决定'这条得再核一下'？"
+      low:  "选 1-2 分 → 追问：是默认相信，还是没有判断的抓手？"
+
+  - id: Q9
+    dimension: D4
+    stem_zh: "我通常能够判断，哪些任务适合交给AI完成，哪些最好由自己完成。"
+    statement_types: [能力, 情境]
+    ref_scale: "MAILS: Understand AI（AI 边界判断）"
+    reverse_scored: false
+    probe_tree:
+      high: "选 5-6 分 → 追问：有没有一类事你坚持自己做、不交给 AI？为什么？"
+      low:  "选 1-2 分 → 追问：这条界线对你来说模糊在哪里？"
+
+  - id: Q10
+    dimension: D5
+    stem_zh: "使用AI时，我会考虑它可能对其他人、组织或社会产生什么影响。"
+    statement_types: [倾向, 经验]
+    ref_scale: "MAILS: AI Ethics；SNAIL：社会影响"
+    reverse_scored: false
+    probe_tree:
+      high: "选 5-6 分 → 追问：有没有一次你因为顾虑影响而改变了用法？"
+      low:  "选 1-2 分 → 追问：是没想过，还是觉得离自己太远？"
+
+  - id: Q11
+    dimension: D5
+    stem_zh: "使用AI时，我通常会留意隐私、安全或数据使用方面的问题。"
+    statement_types: [倾向, 实践]
+    ref_scale: "清华：Privacy / 数据安全"
+    reverse_scored: false
+    probe_tree:
+      high: "选 5-6 分 → 追问：你具体会做什么来护住隐私/数据？"
+      low:  "选 1-2 分 → 追问：是不太担心，还是不知道该注意什么？"
+
+  - id: Q12
+    dimension: D6
+    stem_zh: "即使AI回答得非常肯定，我也不会只因为它看起来\"很专业\"就完全相信它。"
+    statement_types: [倾向, 情境]
+    ref_scale: "MAILS: Persuasion Literacy（抵抗 AI 的说服性权威）"
+    reverse_scored: false
+    probe_tree:
+      high: "选 5-6 分 → 追问：有没有被'很专业但其实错了'的回答坑过？"
+      low:  "选 1-2 分 → 追问：语气笃定会更容易让你信吗？"
+
+  - id: Q13
+    dimension: D6
+    stem_zh: "当AI让我感到困惑、焦虑或挫败时，我通常能够调整自己的做法，而不是完全依赖或放弃AI。"
+    statement_types: [经验, 倾向]
+    ref_scale: "MAILS: Emotion Regulation（改得更生活化）"
+    reverse_scored: false
+    probe_tree:
+      high: "选 5-6 分 → 追问：上一次被 AI 搞到挫败时，你怎么把自己拉回来的？"
+      low:  "选 1-2 分 → 追问：那种时候你更多是死磕、还是干脆不用了？"
+
+  - id: Q14
+    dimension: D7
+    stem_zh: "过去一年，我对\"什么是AI\"的理解发生过明显变化。"
+    statement_types: [经验, 倾向]
+    ref_scale: "新增 Reflection（STS 核心）：认知变化，而非知识"
+    reverse_scored: false
+    probe_tree:
+      high: "选 5-6 分 → 追问：变化前后，你对 AI 的看法各是什么？什么事推动了转变？"
+      low:  "选 1-2 分 → 追问：理解一直比较稳定吗？还是没太回想过？"
+
+  - id: Q15
+    dimension: D7
+    stem_zh: "我已经形成了一套属于自己的AI使用原则，而不仅仅依赖别人告诉我怎么用。"
+    statement_types: [倾向, 能力]
+    ref_scale: "新增 Reflection（STS 核心）：把 AI 素养当作实践（Practice）"
+    reverse_scored: false
+    probe_tree:
+      high: "选 5-6 分 → 追问：你的原则里最重要的一条是什么？怎么来的？"
+      low:  "选 1-2 分 → 追问：目前更多是跟着别人的用法，还是在摸索？"
+
+# ---------------------------------------------------------------------------
+# LLM 注入理论包（Theory Pack）—— S3 追问渲染时注入给 LLM 的学术上下文
+# ⚠️ 【师门 7 月末可改】这是把量表的方法论/理论基础形式化给 LLM 的部分，
+#    直接决定追问的"细节性/完整性/学术性"。改这里即改 LLM 行为，不动代码。
+# 【铁律】LLM 只把 probe_tree[branch] 骨架填成一句自然中文追问，不评分/不改分支/
+#    不新增题目/不下判断——这些都由确定性状态机（S2）定死。
+# ---------------------------------------------------------------------------
+llm_injection:
+  role_zh: "你是一名社会学访谈的语言助手。你的唯一职责是：把系统已经选定的一条'追问骨架'，落成一句自然、口语、开放的中文追问。"
+  iron_rule_zh: >
+    严格约束：①不要评分、不要给结论、不要判断受访者对错；②不要改变系统已选定的
+    题目与分支（追问哪一题、走 high 还是 low，均已由系统定死）；③不要新增题目或
+    引入量表之外的概念；④一次只问一个问题，承接受访者的字面选择，鼓励其讲出具体经历。
+  design_philosophy_zh: >
+    本量表不是精确测量工具，而是"叙事触发器（Narrative Trigger）"：每道 Likert 题
+    的真正任务是让受访者看到题目后脑中立刻浮现一个具体场景，并能自然追问出
+    "为什么？""最近一次是什么时候？""有没有例外？""换个场景呢？"。它是进入受访者
+    生活世界、引发解释、暴露断裂、共同反思 AI 素养概念的批判性访谈装置。
+  statement_type_defs_zh:
+    能力: "问是否具备某种能力（Competency Statement，MAILS 经典形式）。"
+    实践: "问平时是不是这样做（Practice Statement），测实践而非能力。"
+    经验: "问某种经历有没有发生过（Experiential Statement），最易引发故事。"
+    情境: "把'如果……'压缩进一条陈述（Situated Statement），内含情境线索。"
+    倾向: "问人在 AI 面前的默认行动倾向（Disposition Statement）。"
+  theoretical_grounding_zh: >
+    维度框架继承权威量表以保学术可追溯：MAILS 为主（Detect / Apply / Understand /
+    AI Ethics / Learning / Problem-Solving / Persuasion / Emotion Regulation），
+    清华补充日常使用能力与隐私安全，SNAIL 补充社会影响与批判性理解；Reflection 为
+    唯一新增维度，源自 STS 与加芬克尔（Garfinkel）成员分类关切——关注成员如何理解、
+    修补、质疑并重新生产分类，而非分类本身是否'准确'。
+  probe_style_guide_zh:
+    - "用中文口语，像真人访谈者，不用书面腔。"
+    - "开放式，不诱导预设答案；不要把受访者往'正确'方向带。"
+    - "承接受访者这一题的字面作答（同意/不同意的程度），顺势往下问。"
+    - "落点在'具体经历/最近一次/例外/场景切换'，把分数变成故事。"
+    - "一句话一个问题，简洁；必要时可带一句极短的共情过渡。"
+
+# ---------------------------------------------------------------------------
+# 认知访谈脚本占位（S0 决策 5：促进者最后十分钟逐题检验 · 师门可改）
+# ---------------------------------------------------------------------------
+cognitive_interview:
+  enabled: true
+  note: "【师门 7 月末可改】促进者最后十分钟，挑 2-3 题问受访者'这题你是怎么理解的''脑子里想到的是哪件具体的事'，检验题目理解与叙事触发效果。"
+
+# ---------------------------------------------------------------------------
+# 类 MBTI 字母码 type_code（点 4 · 2026-07-11 · 师门 7 月末可改）
+# ⚠️ 【前提不可违背】ALIS 的测量真身是"连续剖面 + 置信区间、无硬类型"。字母码只是
+#    叠加在连续分之上的"风格速记标签"，不是人格类型判定，且带"未分化"位（小写字母）。
+# 【铁律】字母由确定性纯函数 deriveTypeCode 依本段配置算出，LLM 不参与。
+# 切点口径：每轴取该维度"相对位置"（percentile 0..100），与 cut_percentile=50 比较。
+#   - 现阶段占位常模下 50 = 量表中点（criterion-referenced）；
+#   - 阶段 B 接入真实样本常模后，50 自动变为"样本中位数"（norm-referenced）——切点口径
+#     无需改代码即随常模升级。
+# 未分化：某维 95% CI 跨越切点（ci_low < 50 < ci_high）→ 该轴记小写字母，如实表达均衡。
+# 选轴/字母/极名/是否 4 轴(16 型)还是 3 轴(8 型)：师门可在本段直接增删。
+# ---------------------------------------------------------------------------
+type_code:
+  enabled: true
+  cut_percentile: 50          # 切点（相对位置空间）。占位常模=量表中点；常模阶段=样本中位数。
+  intro_zh: "下面是你这次作答的一个'风格速记'——把你在几个方面的相对倾向拼成一个小代号，方便记忆和聊起来。"
+  disclaimer_zh: >
+    这是你 AI 使用**风格**的速记标签，基于你本次作答在量表内的相对倾向；不是人格类型判定，
+    也没有优劣。其中小写字母表示"这方面你比较均衡、暂时说不上明显偏向"。它只是聊天的入口，
+    真正的结果是上面每一维的连续位置与区间。
+  # 4 轴 → 2⁴=16 型（示例·字母与极名师门可改；删两轴即成 3 轴 8 型）
+  axes:
+    - id: judge
+      dimension: D4
+      name_zh: "判断轴"
+      high: { letter: "C", label_zh: "审辨", gloss_zh: "先掂量再采信" }
+      low:  { letter: "T", label_zh: "采信", gloss_zh: "倾向直接相信" }
+    - id: drive
+      dimension: D2
+      name_zh: "驾驭轴"
+      high: { letter: "M", label_zh: "驾驭", gloss_zh: "让 AI 服务真实目标" }
+      low:  { letter: "E", label_zh: "试探", gloss_zh: "多停留在试功能" }
+    - id: care
+      dimension: D5
+      name_zh: "关切轴"
+      high: { letter: "G", label_zh: "顾群", gloss_zh: "想到对他人与社会的影响" }
+      low:  { letter: "P", label_zh: "聚己", gloss_zh: "聚焦自身用途" }
+    - id: reflect
+      dimension: D7
+      name_zh: "反思轴"
+      high: { letter: "R", label_zh: "反身", gloss_zh: "回看 AI 如何改变自己" }
+      low:  { letter: "S", label_zh: "笃行", gloss_zh: "看法稳定、少回看" }

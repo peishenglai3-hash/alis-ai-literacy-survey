@@ -1,0 +1,555 @@
+:root {
+  --bg: #f7f7f5;
+  --card: #ffffff;
+  --ink: #1f2328;
+  --muted: #6b7280;
+  --line: #e5e7eb;
+  --accent: #2f6f5e;
+  --accent-soft: #e6f0ec;
+  --warn: #9a6a1b;
+  --warn-soft: #fbf3e2;
+  --radius: 12px;
+  --maxw: 720px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+  line-height: 1.6;
+  font-size: 16px;
+}
+
+.app {
+  max-width: var(--maxw);
+  margin: 0 auto;
+  padding: 24px 20px 80px;
+}
+
+/* v3.5 修复：访谈页面全宽认知地图布局。
+   flex 列布局 → cognitive-map 用 flex:1 自适应剩余高度。
+   暖纸色背景 + 径向渐变。
+   重要：此处只用 min-height（允许非认知地图页面正常滚动），
+   视口锁定（overflow:hidden）由 .cognitive-map 自身负责。 */
+.app--fullwidth {
+  max-width: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  /* v3.5: 暖纸色背景（匹配 HTML 基准） */
+  background:
+    radial-gradient(1200px 600px at 80% -10%, #f6f2ea 0%, transparent 60%),
+    radial-gradient(900px 500px at -10% 110%, #eee9df 0%, transparent 55%),
+    var(--ds-bg, #efebe3);
+}
+
+/* v3.5: 全宽模式下的顶栏（匹配 HTML 基准 topbar） */
+.app--fullwidth .brand {
+  flex: 0 0 auto;
+  align-items: center;
+  min-height: 46px;
+  padding: 8px 22px;
+  margin-bottom: 0;
+  border-bottom: 1px solid var(--ds-line, #e3ddd1);
+  background: rgba(247, 244, 237, 0.7);
+  backdrop-filter: blur(8px);
+}
+
+.brand {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+.brand h1 {
+  font-size: 20px;
+  margin: 0;
+}
+.brand .ver {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 20px 22px;
+  margin: 16px 0;
+}
+
+.muted {
+  color: var(--muted);
+}
+.small {
+  font-size: 13px;
+}
+
+.progress {
+  height: 6px;
+  background: var(--line);
+  border-radius: 999px;
+  overflow: hidden;
+  margin: 8px 0 20px;
+}
+.progress > span {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+  transition: width 0.25s ease;
+}
+
+.stem {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 4px 0 16px;
+}
+
+.likert {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  gap: 8px;
+  margin: 8px 0;
+}
+.likert button {
+  padding: 12px 0;
+  border: 1px solid var(--line);
+  background: #fff;
+  border-radius: 10px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.12s ease;
+}
+.likert button:hover {
+  border-color: var(--accent);
+}
+.likert button[aria-pressed="true"] {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+/* 全标注等距锚点（点3）：每个选项竖排 数字 + 词标 */
+.likert.labeled button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 2px;
+}
+.likert.labeled .lk-num {
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1;
+}
+.likert.labeled .lk-label {
+  font-size: 11px;
+  line-height: 1.15;
+  opacity: 0.85;
+}
+.refcard {
+  margin: 10px 0 2px;
+}
+.refcard summary {
+  cursor: pointer;
+}
+.refcard ul {
+  margin: 8px 0 0;
+  padding-left: 18px;
+}
+.refcard li {
+  margin: 2px 0;
+  color: var(--muted);
+}
+.anchors {
+  display: flex;
+  justify-content: space-between;
+  color: var(--muted);
+  font-size: 13px;
+  margin-top: 2px;
+}
+
+.row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.spread {
+  justify-content: space-between;
+}
+
+button.primary {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 12px 20px;
+  font-size: 16px;
+  cursor: pointer;
+}
+button.primary:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+button.ghost {
+  background: #fff;
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 10px 16px;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+input[type="text"],
+textarea {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 15px;
+  font-family: inherit;
+}
+label.field {
+  display: block;
+  margin: 12px 0 4px;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.disclaimer {
+  background: var(--accent-soft);
+  border: 1px solid #cfe3db;
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-size: 14px;
+  margin: 12px 0;
+}
+
+.bar {
+  margin: 14px 0;
+}
+.bar .bar-head {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+.bar .track {
+  position: relative;
+  height: 20px;
+  background: var(--line);
+  border-radius: 999px;
+}
+.bar .ci {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  background: #cfe3db;
+  border-radius: 999px;
+}
+.bar .dot {
+  position: absolute;
+  top: 50%;
+  width: 14px;
+  height: 14px;
+  margin-left: -7px;
+  margin-top: -7px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 2px solid #fff;
+}
+.bar.target .track {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.probe {
+  font-size: 18px;
+  font-weight: 600;
+  background: var(--warn-soft);
+  border: 1px solid #ecdcbb;
+  border-radius: 10px;
+  padding: 16px 18px;
+  margin: 12px 0;
+}
+.fallback-note {
+  color: var(--warn);
+  font-size: 13px;
+}
+
+.rec-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #c0392b;
+  margin-right: 6px;
+  animation: pulse 1s infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+.error {
+  background: #fdecea;
+  border: 1px solid #f5c6cb;
+  color: #a12622;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 14px;
+  margin: 10px 0;
+}
+
+/* 类 MBTI 字母码卡片（点4）—— 永远与连续剖面并排、非硬类型 */
+.typecode .tc-code {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 6px 0 10px;
+}
+.typecode .tc-letter {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 60px;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--accent-soft);
+}
+.typecode .tc-letter .g {
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--accent);
+}
+.typecode .tc-letter.undiff .g {
+  color: var(--muted);
+  font-weight: 500;
+  text-transform: lowercase;
+}
+.typecode .tc-letter .n {
+  font-size: 12px;
+  color: var(--ink);
+}
+.typecode .tc-letter .u {
+  font-size: 11px;
+  color: var(--muted);
+}
+.typecode .tc-axes {
+  margin: 6px 0 0;
+  padding-left: 18px;
+}
+.typecode .tc-axes li {
+  margin: 2px 0;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+/* PWA 离线暂存提示条（点2） */
+.offline-banner {
+  background: var(--warn-soft);
+  border: 1px solid #ecdcbb;
+  color: var(--warn);
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-size: 13px;
+  margin: 10px 0;
+}
+
+/* ============================================================
+   登录屏（应用层身份认证）—— GitHub / Gitee 风格
+   自包含全视口居中布局。所有样式作用域限定在 .auth-viewport 下，
+   不影响 App 其余部分。复用 :root 设计令牌（--accent 为品牌色）。
+   ============================================================ */
+
+/* 全视口背景 + 垂直/水平居中 */
+.auth-viewport {
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+  padding: 32px 16px;
+}
+
+/* 窄栏容器（品牌区 + 卡片 + 脚注共用一列） */
+.auth-shell {
+  width: 100%;
+  max-width: 360px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+/* 卡片之上的品牌区 */
+.auth-brand {
+  text-align: center;
+  margin-bottom: 22px;
+}
+.auth-wordmark {
+  font-size: 30px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: var(--accent);
+  line-height: 1.1;
+}
+.auth-subtitle {
+  margin-top: 6px;
+  font-size: 14px;
+  color: var(--muted);
+}
+
+/* 白色描边卡片 */
+.auth-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 26px 24px 28px;
+  box-shadow: 0 1px 2px rgba(31, 35, 40, 0.04);
+}
+.auth-heading {
+  margin: 0 0 20px;
+  font-size: 20px;
+  font-weight: 600;
+  text-align: center;
+  color: var(--ink);
+}
+
+/* 字段：标签在输入框之上 */
+.auth-field {
+  margin-bottom: 16px;
+}
+.auth-label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+/* 登录输入框（同时覆盖 text 与 password，补上未样式化的密码框） */
+.auth-viewport .auth-input {
+  display: block;
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 11px 12px;
+  font-size: 15px;
+  font-family: inherit;
+  color: var(--ink);
+  background: #fff;
+  transition: border-color 0.12s ease, box-shadow 0.12s ease;
+}
+.auth-viewport .auth-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+/* v3.11 显示密码按钮：密码框外包容器 + 右侧绝对定位切换钮（触屏 ≥44px） */
+.auth-password-wrap {
+  position: relative;
+}
+.auth-input-password {
+  padding-right: 48px; /* 给切换按钮留位 */
+}
+.auth-toggle {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  color: var(--muted, #6b7280);
+  cursor: pointer;
+  border-radius: 8px;
+}
+.auth-toggle:hover {
+  color: var(--accent);
+  background: var(--accent-soft, rgba(105, 87, 201, 0.08));
+}
+.auth-hint {
+  margin-top: 6px;
+  font-size: 12.5px;
+  color: var(--muted, #6b7280);
+  line-height: 1.5;
+}
+
+/* 全宽主操作按钮 */
+.auth-submit {
+  width: 100%;
+  margin-top: 6px;
+  background: var(--accent);
+  color: #fff;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  padding: 12px 16px;
+  font-size: 16px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: filter 0.12s ease, opacity 0.12s ease;
+}
+.auth-submit:hover:not(:disabled) {
+  filter: brightness(0.94);
+}
+.auth-submit:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+.auth-submit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* 错误提示区（常驻 aria-live 容器，空态无视觉占位） */
+.auth-alert:empty {
+  display: none;
+}
+.auth-error {
+  margin-top: 16px;
+  background: #fdecea;
+  border: 1px solid #f5c6cb;
+  color: #a12622;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 14px;
+}
+
+/* 卡片下方脚注 */
+.auth-footer {
+  margin: 18px 0 0;
+  text-align: center;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+/* 移动端/平板：卡片收窄至 ~92vw，保留舒适内边距 */
+@media (max-width: 420px) {
+  .auth-shell {
+    max-width: 92vw;
+  }
+  .auth-card {
+    padding: 22px 18px 24px;
+  }
+  .auth-wordmark {
+    font-size: 26px;
+  }
+}

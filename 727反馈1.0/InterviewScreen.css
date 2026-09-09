@@ -1,0 +1,668 @@
+/* ALIS InterviewScreen — v3.5 认知地图布局（定点重写）。
+   来源：727反馈1.0/v3.3认知地图布局_可视化.html（视觉基准）
+         + 设计系统与全流程布局策略.md
+   策略：重建为三区 Grid，匹配 HTML 基准；旧 CSS 全部替换。
+   核心目标：1920×1080 视口下零纵向滚动、三区全可见。 */
+
+/* ============================================================
+   视口锁定：body 级滚动阻止
+   仅在 interview 阶段生效（通过 .app--fullwidth 上的 body 类）
+   ============================================================ */
+body.alis-interview-active {
+  overflow: hidden;
+  background:
+    radial-gradient(1200px 600px at 80% -10%, #f6f2ea 0%, transparent 60%),
+    radial-gradient(900px 500px at -10% 110%, #eee9df 0%, transparent 55%),
+    var(--ds-bg, #efebe3);
+}
+
+/* ============================================================
+   认知地图 Grid（忠实于 HTML 基准 §6.3）
+   ============================================================ */
+.cognitive-map {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  grid-template-rows: 1fr auto;
+  grid-template-areas:
+    "focus  awareness"
+    "drill  drill";
+  gap: 22px;
+  max-width: 1400px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 22px;
+  /* 视口高度锁定（减去 topbar 高度） */
+  height: calc(100vh - 64px);
+  overflow: hidden;
+}
+
+/* ============================================================
+   区域标签（右上角小字）
+   ============================================================ */
+.zone-tag {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  font-family: var(--ds-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ds-faint);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  pointer-events: none;
+}
+.zone-tag i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--ds-faint);
+  font-style: normal;
+}
+
+/* ============================================================
+   中央焦点区（FOCUS）
+   ============================================================ */
+.focus-zone {
+  grid-area: focus;
+  position: relative;
+  background: var(--ds-surface, #fff);
+  border-radius: var(--ds-r-card);
+  box-shadow: var(--ds-shadow-card);
+  padding: 30px 34px 24px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: ds-rise 0.6s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+/* ---- 阶段标签 + 题号 ---- */
+.focus-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.stage-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--ds-mono);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--ds-accent);
+  background: var(--ds-accent-soft);
+  padding: 5px 11px;
+  border-radius: 999px;
+  font-weight: 500;
+}
+.stage-pill b {
+  font-weight: 600;
+}
+
+.qno {
+  font-family: var(--ds-serif);
+  font-size: 15px;
+  color: var(--ds-muted);
+}
+.qno b {
+  color: var(--ds-ink);
+  font-size: 17px;
+}
+
+/* ---- 阶段进度条 ---- */
+.stage-progress {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 11.5px;
+  color: var(--ds-muted);
+}
+.stage-progress .sg {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.stage-progress .mk {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+.mk.done {
+  background: var(--ds-done);
+}
+.mk.cur {
+  background: var(--ds-accent);
+  box-shadow: 0 0 0 3px var(--ds-accent-soft);
+}
+.mk.todo {
+  background: transparent;
+  border: 1px solid var(--ds-faint);
+}
+.stage-progress .sep {
+  width: 14px;
+  height: 1px;
+  background: var(--ds-line);
+}
+
+/* ---- 题目文本 ---- */
+.question {
+  font-size: 23px;
+  line-height: 1.5;
+  font-weight: 500;
+  margin: 20px 0 12px;
+  max-width: 46ch;
+  letter-spacing: 0.1px;
+}
+
+/* ---- 关键词 chips ---- */
+.keywords {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 18px;
+}
+.kw {
+  font-size: 12px;
+  color: var(--ds-ink-2);
+  background: var(--ds-line-soft);
+  border: 1px solid var(--ds-line);
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+
+/* ---- 答案块（展示受访者 Likert 评分） ---- */
+.answer-block {
+  border: 1px solid var(--ds-line);
+  border-left: 3px solid var(--ds-accent);
+  border-radius: var(--ds-r-inner);
+  padding: 14px 16px;
+  background: #fcfbf8;
+  margin-bottom: 14px;
+}
+.answer-block .lab {
+  font-family: var(--ds-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.06em;
+  color: var(--ds-muted);
+  text-transform: uppercase;
+}
+.answer-block .txt {
+  font-size: 14.5px;
+  color: var(--ds-ink-2);
+  margin: 6px 0 12px;
+  line-height: 1.55;
+}
+
+/* ---- Likert 数字选择器 ---- */
+.scale {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.scale .nums {
+  display: flex;
+  gap: 5px;
+}
+.num {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--ds-mono);
+  font-size: 13px;
+  color: var(--ds-ink-2);
+  background: #fff;
+  border: 1px solid var(--ds-line);
+  cursor: default;
+  transition: all 0.15s ease;
+}
+.num.sel {
+  background: var(--ds-accent);
+  color: #fff;
+  border-color: var(--ds-accent);
+  box-shadow: 0 4px 12px -4px rgba(105, 87, 201, 0.5);
+}
+.scale .verdict {
+  margin-left: 10px;
+  font-size: 13px;
+  color: var(--ds-ink);
+}
+.scale .verdict b {
+  font-family: var(--ds-mono);
+  color: var(--ds-accent);
+}
+
+/* ---- 快速输入框 ---- */
+.quick-input {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #fff;
+  border: 1px solid var(--ds-line);
+  border-radius: var(--ds-r-inner);
+  padding: 9px 12px;
+}
+.quick-input .plus {
+  color: var(--ds-done);
+  font-weight: 600;
+}
+.quick-input input {
+  border: 0;
+  outline: 0;
+  background: transparent;
+  flex: 1;
+  font-family: var(--ds-sans);
+  font-size: 13.5px;
+  color: var(--ds-ink);
+}
+.quick-input input::placeholder {
+  color: var(--ds-faint);
+}
+.quick-input .hint {
+  font-family: var(--ds-mono);
+  font-size: 10px;
+  color: var(--ds-faint);
+}
+
+/* ---- 导航行 ---- */
+.nav-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+}
+.nav-row .pos {
+  font-family: var(--ds-mono);
+  font-size: 11px;
+  color: var(--ds-muted);
+}
+
+/* ---- 按钮（在认知地图内） ---- */
+.cognitive-map .btn {
+  font-family: var(--ds-sans);
+  font-size: 13.5px;
+  font-weight: 500;
+  padding: 9px 18px;
+  border-radius: 9px;
+  cursor: pointer;
+  border: 1px solid var(--ds-line);
+  background: #fff;
+  color: var(--ds-ink-2);
+  transition: all 0.15s ease;
+}
+.cognitive-map .btn:hover {
+  border-color: var(--ds-faint);
+  color: var(--ds-ink);
+}
+.cognitive-map .btn.primary {
+  background: var(--ds-ink);
+  color: #fff;
+  border-color: var(--ds-ink);
+  margin-left: auto;
+}
+.cognitive-map .btn.primary:hover {
+  background: #000;
+}
+.cognitive-map .btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ---- 内部滚动条 ---- */
+.focus-zone::-webkit-scrollbar,
+.awareness-zone::-webkit-scrollbar {
+  width: 6px;
+}
+.focus-zone::-webkit-scrollbar-thumb,
+.awareness-zone::-webkit-scrollbar-thumb {
+  background: var(--ds-faint);
+  border-radius: 3px;
+}
+
+/* ============================================================
+   右侧觉察带（AWARENESS）
+   ============================================================ */
+.awareness-zone {
+  grid-area: awareness;
+  position: relative;
+  background: var(--ds-surface-2);
+  border-radius: var(--ds-r-card);
+  border: 1px solid var(--ds-line-soft);
+  padding: 20px 18px;
+  opacity: 0.62;                       /* 默认低透明度：不抢注意力 */
+  transition: opacity 0.25s ease;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  animation: ds-rise 0.6s cubic-bezier(0.2, 0.7, 0.2, 1) 0.05s both;
+}
+.awareness-zone:hover {
+  opacity: 0.92;                       /* 悬停提升 */
+}
+
+/* ============================================================
+   下方钻取区（DRILL）
+   ============================================================ */
+.drill-zone {
+  grid-area: drill;
+  position: relative;
+  background: var(--ds-surface, #fff);
+  border: 1px solid var(--ds-line);
+  border-radius: var(--ds-r-card);
+  padding: 12px 16px;
+  box-shadow: var(--ds-shadow-soft);
+  animation: ds-rise 0.6s cubic-bezier(0.2, 0.7, 0.2, 1) 0.1s both;
+}
+
+/* ---- Tab 栏 ---- */
+.drill-tabs {
+  display: flex;
+  gap: 6px;
+}
+.drill-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+  color: var(--ds-ink-2);
+  background: transparent;
+  border: 1px solid transparent;
+  padding: 8px 13px;
+  border-radius: 9px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: var(--ds-sans);
+}
+.drill-tab:hover {
+  background: #f7f4ed;
+}
+.drill-tab.active {
+  background: #fff;
+  border-color: var(--ds-line);
+  color: var(--ds-ink);
+  font-weight: 500;
+  box-shadow: var(--ds-shadow-soft);
+}
+.drill-tab .ic {
+  font-size: 14px;
+}
+.drill-tab .badge {
+  font-family: var(--ds-mono);
+  font-size: 9.5px;
+  color: var(--ds-faint);
+}
+
+/* ---- Tab 内容体 ---- */
+.drill-body {
+  margin-top: 10px;
+  padding: 14px 16px 4px;
+  border-top: 1px solid var(--ds-line-soft);
+  animation: ds-rise 0.3s ease both;
+}
+.drill-body h4 {
+  margin: 0 0 6px;
+  font-size: 13px;
+  color: var(--ds-ink);
+  font-weight: 600;
+}
+.drill-body p {
+  margin: 0 0 12px;
+  font-size: 13.5px;
+  line-height: 1.65;
+  color: var(--ds-ink-2);
+}
+.drill-body p .hl {
+  background: var(--ds-accent-soft);
+  color: var(--ds-accent);
+  padding: 1px 5px;
+  border-radius: 4px;
+}
+
+/* ---- 钻取区折叠态（只显示 tab 栏，隐藏 body） ---- */
+.drill-zone.collapsed .drill-body {
+  display: none;
+}
+.drill-zone.collapsed .drill-tabs {
+  opacity: 0.5;
+}
+
+/* ============================================================
+   觉察带：气泡（匹配 HTML 基准）
+   ============================================================ */
+.awareness-zone .bubble {
+  background: #fff;
+  border: 1px solid var(--ds-line-soft);
+  border-radius: 11px;
+  padding: 11px 12px;
+  margin-bottom: 10px;
+  box-shadow: var(--ds-shadow-soft);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  cursor: pointer;
+  font-size: 13px;
+}
+.awareness-zone .bubble:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px -8px rgba(33, 31, 38, 0.25);
+}
+.awareness-zone .bubble .ts {
+  font-family: var(--ds-mono);
+  font-size: 10.5px;
+  color: var(--ds-faint);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.awareness-zone .bubble .body {
+  font-size: 13px;
+  color: var(--ds-ink);
+  line-height: 1.5;
+  margin: 5px 0 7px;
+}
+.awareness-zone .bubble .src {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  font-family: var(--ds-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.03em;
+}
+.src.preset  { color: var(--ds-muted); background: #f0ede5; }
+.src.cross   { color: var(--ds-accent); background: var(--ds-accent-soft); }
+.src.ai      { color: var(--ds-ai); background: var(--ds-ai-soft); }
+.src.manual  { color: var(--ds-done); background: var(--ds-done-soft); }
+.awareness-zone .bubble .link {
+  font-family: var(--ds-mono);
+  font-size: 10px;
+  color: var(--ds-accent);
+  margin-top: 6px;
+  display: inline-flex;
+  gap: 4px;
+}
+
+/* ---- 觉察带标题 ---- */
+.aw-head {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+.aw-head h3 {
+  margin: 0;
+  font-family: var(--ds-sans);
+  font-size: 14px;
+  font-weight: 600;
+}
+.aw-head .cnt {
+  font-family: var(--ds-mono);
+  font-size: 12px;
+  color: var(--ds-muted);
+}
+.aw-sub {
+  font-size: 11px;
+  color: var(--ds-faint);
+  margin-bottom: 14px;
+}
+
+/* ---- 添加想法入口 ---- */
+.add-thought {
+  margin-top: 6px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px dashed var(--ds-faint);
+  border-radius: 10px;
+  padding: 9px 11px;
+  color: var(--ds-muted);
+  font-size: 12.5px;
+  cursor: pointer;
+}
+.add-thought .kbd {
+  margin-left: auto;
+  font-family: var(--ds-mono);
+  font-size: 10px;
+  color: var(--ds-faint);
+  border: 1px solid var(--ds-line);
+  border-radius: 4px;
+  padding: 1px 5px;
+}
+
+/* ============================================================
+   访谈进度条（觉察带底部）
+   ============================================================ */
+.interview-progress-bar {
+  font-size: 0.75rem;
+  color: var(--ds-muted);
+  padding: 8px 0;
+  border-top: 1px solid var(--ds-line-soft);
+}
+.interview-progress-bar .title {
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+.interview-progress-bar .stage-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 0;
+  font-family: var(--ds-mono);
+  font-size: 11px;
+}
+
+/* ============================================================
+   旧模块（已删除/隐藏）
+   ============================================================ */
+
+/* 访谈记录大文本框 → 已删除，替换为焦点区快速输入框 */
+/* 访谈记录滚动区 → 已删除，记录在后台保存但不在访谈中展示 */
+/* 下一题预览 → 已删除 */
+
+/* 保留 records-scroll 类名用于向后兼容（如果其他组件引用），但隐藏内容 */
+.records-scroll {
+  display: none;
+}
+
+/* 旧 record-area → 已被 quick-input 替代 */
+.record-area {
+  display: none;
+}
+
+/* 旧 stage-header → 已被 stage-pill + qno 替代 */
+.stage-header {
+  display: none;
+}
+
+/* ============================================================
+   辅助样式
+   ============================================================ */
+
+/* 矛盾提示（保留功能，调整样式） */
+.contradiction-alert {
+  border-left: 3px solid var(--ds-ai);
+  background: var(--ds-ai-soft);
+  border-radius: var(--ds-r-inner);
+  padding: 10px 14px;
+  margin-bottom: 12px;
+  font-size: 0.85rem;
+}
+.contradiction-alert h4 {
+  margin: 0 0 6px;
+  font-size: 0.85rem;
+  color: var(--ds-ai);
+}
+.contradiction-item {
+  padding: 6px 0;
+  border-bottom: 1px solid var(--ds-line-soft);
+  font-size: 0.8rem;
+}
+.contradiction-item:last-child {
+  border-bottom: none;
+}
+.prompt-text {
+  font-style: italic;
+  color: var(--ds-ink-2);
+}
+
+/* 入口引导 */
+.entry-guide {
+  background: var(--ds-accent-soft);
+  border: 1px solid var(--ds-line);
+  border-radius: var(--ds-r-inner);
+  padding: 12px 14px;
+  margin-bottom: 12px;
+  font-size: 0.9rem;
+  color: var(--ds-ink-2);
+}
+
+/* ============================================================
+   动效
+   ============================================================ */
+@keyframes ds-rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ============================================================
+   响应式：窄屏降级单栏（≤1024px）
+   ============================================================ */
+@media (max-width: 1024px) {
+  body.alis-interview-active {
+    overflow: auto;
+  }
+  .cognitive-map {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "focus"
+      "awareness"
+      "drill";
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
+  }
+  .awareness-zone {
+    position: static;
+    opacity: 1;
+    max-height: none;
+  }
+  .focus-zone {
+    overflow-y: visible;
+  }
+}

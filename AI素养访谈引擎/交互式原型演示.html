@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI素养访谈引擎 - 交互式原型演示</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 0;
+            min-height: 800px;
+        }
+
+        /* 侧边栏样式 */
+        .sidebar {
+            background: #f8f9fa;
+            border-right: 1px solid #e0e0e0;
+            padding: 30px 20px;
+        }
+
+        .framework-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .framework-card h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .framework-type {
+            font-size: 2em;
+            font-weight: bold;
+            color: #764ba2;
+            margin: 15px 0;
+        }
+
+        .progress-bar {
+            display: flex;
+            gap: 8px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .progress-stage {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .progress-stage.completed {
+            background: #4caf50;
+            color: white;
+        }
+
+        .progress-stage.current {
+            background: #667eea;
+            color: white;
+            animation: pulse 2s infinite;
+        }
+
+        .progress-stage.pending {
+            background: #e0e0e0;
+            color: #999;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .stage-questions {
+            margin-top: 15px;
+        }
+
+        .stage-questions h4 {
+            color: #555;
+            margin-bottom: 10px;
+            font-size: 1em;
+        }
+
+        .stage-questions ul {
+            list-style: none;
+        }
+
+        .stage-questions li {
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 0.9em;
+        }
+
+        .discoveries-list {
+            margin-top: 15px;
+        }
+
+        .discoveries-list h4 {
+            color: #555;
+            margin-bottom: 10px;
+            font-size: 1em;
+        }
+
+        .discovery-item {
+            background: #e3f2fd;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            font-size: 0.9em;
+            border-left: 3px solid #2196f3;
+        }
+
+        /* 主内容区域 */
+        .main-area {
+            padding: 30px;
+            background: white;
+        }
+
+        .stage-content {
+            display: none;
+        }
+
+        .stage-content.active {
+            display: block;
+        }
+
+        .stage-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+        }
+
+        .stage-header h2 {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .stage-header p {
+            opacity: 0.9;
+        }
+
+        .conversation-area {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+        }
+
+        .message {
+            margin-bottom: 20px;
+        }
+
+        .message.system {
+            text-align: left;
+        }
+
+        .message.user {
+            text-align: right;
+        }
+
+        .message-bubble {
+            display: inline-block;
+            max-width: 80%;
+            padding: 15px 20px;
+            border-radius: 15px;
+            font-size: 1em;
+            line-height: 1.5;
+        }
+
+        .message.system .message-bubble {
+            background: white;
+            border: 2px solid #e0e0e0;
+            color: #333;
+        }
+
+        .message.user .message-bubble {
+            background: #667eea;
+            color: white;
+        }
+
+        .follow-up-card {
+            background: white;
+            border-left: 4px solid #ff9800;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .follow-up-card h4 {
+            color: #ff9800;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .follow-up-question {
+            background: #fff3e0;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .follow-up-question:hover {
+            background: #ffe0b2;
+            border-color: #ff9800;
+        }
+
+        .framework-highlight {
+            background: #e8f5e9;
+            border-left: 4px solid #4caf50;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+
+        .framework-highlight strong {
+            color: #2e7d32;
+        }
+
+        .navigation-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #e0e0e0;
+            color: #555;
+        }
+
+        .btn-secondary:hover {
+            background: #d0d0d0;
+        }
+
+        .cross-stage-indicator {
+            background: #fff9c4;
+            border: 2px solid #fbc02d;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .cross-stage-indicator h4 {
+            color: #f57c00;
+            margin-bottom: 10px;
+        }
+
+        .journey-summary {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            padding: 25px;
+            border-radius: 15px;
+            margin-top: 25px;
+        }
+
+        .journey-summary h3 {
+            color: #1976d2;
+            margin-bottom: 15px;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .summary-item {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #2196f3;
+        }
+
+        .summary-item h4 {
+            color: #555;
+            margin-bottom: 8px;
+            font-size: 1em;
+        }
+
+        .summary-item p {
+            color: #333;
+            font-size: 0.95em;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 10px;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            background: #f0f0f0;
+            border: none;
+            border-radius: 8px 8px 0 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .tab.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .info-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-left: 4px solid #667eea;
+        }
+
+        .info-card h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .info-card ul {
+            list-style-position: inside;
+            color: #555;
+        }
+
+        .highlight-box {
+            background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            border: 2px solid #ff9800;
+        }
+
+        .highlight-box h3 {
+            color: #e65100;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 AI素养访谈引擎</h1>
+            <p>从"风格类型作为访谈终点"到"风格类型作为认知旅程入口"的交互式原型演示</p>
+        </div>
+
+        <div class="main-content">
+            <!-- 侧边栏：持久显示的认知框架 -->
+            <div class="sidebar">
+                <div class="framework-card">
+                    <h3>🤝 认知框架</h3>
+                    <div class="framework-type">AI协作者</div>
+                    <p style="color: #666; font-size: 0.9em;">你不把AI看作工具，而看作需要不断交流和调整的合作对象。</p>
+                </div>
+
+                <div class="framework-card">
+                    <h3>📍 旅程进度</h3>
+                    <div class="progress-bar">
+                        <div class="progress-stage completed" onclick="showStage(1)" title="认识AI">🧠</div>
+                        <div class="progress-stage completed" onclick="showStage(2)" title="使用AI">💻</div>
+                        <div class="progress-stage current" onclick="showStage(3)" title="信任AI">🔍</div>
+                        <div class="progress-stage pending" onclick="showStage(4)" title="与AI相处">🤖</div>
+                        <div class="progress-stage pending" onclick="showStage(5)" title="理解AI">📖</div>
+                        <div class="progress-stage pending" onclick="showStage(6)" title="重新定义AI">✨</div>
+                    </div>
+                    <p style="font-size: 0.9em; color: #666;">当前：第三阶段 - 信任AI</p>
+                </div>
+
+                <div class="framework-card">
+                    <h3>📝 本阶段题目</h3>
+                    <div class="stage-questions">
+                        <h4>第三阶段：信任AI</h4>
+                        <ul>
+                            <li>Q7: 解决过程信任</li>
+                            <li>Q8: 判断能力 ⬅️ 当前</li>
+                            <li>Q9: 边界意识</li>
+                            <li>Q12: 质疑精神</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="framework-card">
+                    <h3>💡 阶段发现</h3>
+                    <div class="discoveries-list">
+                        <div class="discovery-item">选择性验证能力</div>
+                        <div class="discovery-item">情境化信任判断</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 主内容区域 -->
+            <div class="main-area">
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab('journey')">🗺️ 认知旅程</button>
+                    <button class="tab" onclick="switchTab('architecture')">🏗️ 架构说明</button>
+                    <button class="tab" onclick="switchTab('demo')">🎬 演示模式</button>
+                </div>
+
+                <!-- 认知旅程标签页 -->
+                <div class="tab-content active" id="journey-tab">
+                    <!-- 阶段1：认识AI -->
+                    <div class="stage-content" id="stage-1">
+                        <div class="stage-header">
+                            <h2>🧠 第一阶段：认识AI</h2>
+                            <p>探索"你如何认识和理解AI"</p>
+                        </div>
+
+                        <div class="conversation-area">
+                            <div class="message system">
+                                <div class="message-bubble">
+                                    🤖 系统：你之前在Q1和Q2中提到，你会使用ChatGPT、Midjourney等工具。作为"AI协作者"，你对AI的"认识"和普通用户有什么不同之处？
+                                </div>
+                            </div>
+
+                            <div class="message user">
+                                <div class="message-bubble">
+                                    👤 你：我觉得我不只是把它们当工具...更像是在和它们合作。
+                                </div>
+                            </div>
+
+                            <div class="message system">
+                                <div class="message-bubble">
+                                    🤖 系统：这个"不只是工具"的观点很有意思！能具体说说你如何"理解"AI除了工具之外还能是什么吗？
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="follow-up-card">
+                            <h4>💡 针对Q1的个性化追问</h4>
+                            <div class="follow-up-question">
+                                作为"AI协作者"，你如何判断一个应用真正使用了AI？
+                            </div>
+                            <div class="follow-up-question">
+                                你在Q1中选择了"非常同意"，能举一个你判断AI真实性的例子吗？
+                            </div>
+                        </div>
+
+                        <div class="framework-highlight">
+                            <strong>🔍 从"AI协作者"框架的发现：</strong><br>
+                            你不只把AI当作工具，更看作合作对象。你已经形成了对AI能力边界的理解。
+                        </div>
+
+                        <div class="navigation-buttons">
+                            <button class="btn btn-primary" onclick="showStage(2)">继续下一阶段 →</button>
+                        </div>
+                    </div>
+
+                    <!-- 阶段2：使用AI -->
+                    <div class="stage-content" id="stage-2">
+                        <div class="stage-header">
+                            <h2>💻 第二阶段：使用AI</h2>
+                            <p>探索"你如何使用AI"</p>
+                        </div>
+
+                        <div class="conversation-area">
+                            <div class="message system">
+                                <div class="message-bubble">
+                                    🤖 系统：你在Q5中选择了"非常同意"：当AI没有理解你的意思时，通常会尝试调整表达。这种做法说明你把AI看作什么？
+                                </div>
+                            </div>
+
+                            <div class="message user">
+                                <div class="message-bubble">
+                                    👤 你：我觉得AI像是一个需要沟通的伙伴，不是那种给指令就执行的机器。
+                                </div>
+                            </div>
+
+                            <div class="message system">
+                                <div class="message-bubble">
+                                    🤖 系统：这个"伙伴"的比喻很棒！你在Q3中提到能用AI完成真正想完成的事情，能具体讲一个例子吗？
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="follow-up-card">
+                            <h4>💡 跨题矛盾检测</h4>
+                            <div class="follow-up-question" style="background: #fce4ec; border-left-color: #e91e63;">
+                                <strong>⚠️ 发现潜在矛盾：</strong>你在Q3表示能用AI完成很多事情，但在Q6中表示学习新AI工具有点困难。这种差异你怎么看？
+                            </div>
+                        </div>
+
+                        <div class="framework-highlight">
+                            <strong>🔍 从"AI协作者"框架的发现：</strong><br>
+                            你有持续协作的能力，会调整表达与AI互动，体现了关系导向的使用方式。
+                        </div>
+
+                        <div class="navigation-buttons">
+                            <button class="btn btn-secondary" onclick="showStage(1)">← 上一阶段</button>
+                            <button class="btn btn-primary" onclick="showStage(3)">继续下一阶段 →</button>
+                        </div>
+                    </div>
+
+                    <!-- 阶段3：信任AI（当前阶段） -->
+                    <div class="stage-content active" id="stage-3">
+                        <div class="stage-header">
+                            <h2>🔍 第三阶段：信任AI</h2>
+                            <p>探索"你如何建立对AI的信任"</p>
+                        </div>
+
+                        <div class="conversation-area">
+                            <div class="message system">
+                                <div class="message-bubble">
+                                    🤖 系统：你在Q7中选择了"非常同意"：即使遇到比较复杂的问题，也能够逐步利用AI帮助自己找到解决办法。你在Q8中选择了"比较同意"：能够判断AI什么时候值得相信。
+                                </div>
+                            </div>
+
+                            <div class="message system">
+                                <div class="message-bubble">
+                                    🤖 系统：作为"AI协作者"，你什么时候会验证，什么时候不会？你的判断标准是什么？
+                                </div>
+                            </div>
+
+                            <div class="message user">
+                                <div class="message-bubble">
+                                    👤 你：我会在重要事情上验证，比如工作相关的任务。日常小事就不太验证。
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="follow-up-card">
+                            <h4>💡 针对Q8的5层追问序列</h4>
+                            <div class="follow-up-question">
+                                <strong>1. 经验唤起：</strong>你在Q8中选择了"比较同意"，能具体讲一个你验证AI结果的例子吗？
+                            </div>
+                            <div class="follow-up-question">
+                                <strong>2. 框架连接：</strong>作为"AI协作者"，你的验证标准是什么？
+                            </div>
+                            <div class="follow-up-question">
+                                <strong>3. 跨题矛盾检测：</strong>你既愿意信任AI处理复杂问题（Q7高分），又会验证结果（Q8高分）。这种"选择性信任"你是如何管理的？
+                            </div>
+                            <div class="follow-up-question">
+                                <strong>4. AI素养桥接：</strong>这种判断AI可信度的能力，正是AI素养的核心："批判性评估"。你觉得这种能力重要吗？
+                            </div>
+                            <div class="follow-up-question">
+                                <strong>5. 反思深化：</strong>通过这段旅程，你对自己的信任判断有什么新的理解？
+                            </div>
+                        </div>
+
+                        <div class="framework-highlight">
+                            <strong>🔍 从"AI协作者"框架的发现：</strong><br>
+                            你已经形成了"选择性信任"机制：不是简单的信/不信，而是基于情境的动态判断。
+                        </div>
+
+                        <div class="navigation-buttons">
+                            <button class="btn btn-secondary" onclick="showStage(2)">← 上一阶段</button>
+                            <button class="btn btn-primary" onclick="showStage(4)">继续下一阶段 →</button>
+                        </div>
+                    </div>
+
+                    <!-- 阶段4：与AI相处 -->
+                    <div class="stage-content" id="stage-4">
+                        <div class="stage-header">
+                            <h2>🤖 第四阶段：与AI相处</h2>
+                            <p>探索"AI如何影响你的生活"</p>
+                        </div>
+
+                        <div class="conversation-area">
+                            <div class="message system">
+                                <div class="message-bubble">
+                                    🤖 系统：让我们探讨AI如何影响你的生活。你在Q10中提到会考虑AI对其他人的影响，你在Q11中提到会留意隐私问题。
+                                </div>
+                            </div>
+
+                            <div class="message user">
+                                <div class="message-bubble">
+                                    👤 你：是的，我觉得使用AI不能只考虑自己。
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="cross-stage-indicator">
+                            <h4>🔄 跨阶段题目提示</h4>
+                            <p><strong>Q10和Q11将在第五阶段再次探讨</strong>，届时会从"个人视角"扩展到"社会/技术视角"。</p>
+                        </div>
+
+                        <div class="navigation-buttons">
+                            <button class="btn btn-secondary" onclick="showStage(3)">← 上一阶段</button>
+                            <button class="btn btn-primary" onclick="showStage(5)">查看跨阶段重复 →</button>
+                        </div>
+                    </div>
+
+                    <!-- 阶段5：理解AI（跨阶段重复） -->
+                    <div class="stage-content" id="stage-5">
+                        <div class="stage-header">
+                            <h2>📖 第五阶段：理解AI</h2>
+                            <p>从个人视角扩展到社会/技术视角</p>
+                        </div>
+
+                        <div class="highlight-box">
+                            <h3>🔄 跨阶段题目对比</h3>
+                            <p><strong>Q10的两次探讨对比：</strong></p>
+                            <ul>
+                                <li><strong>第四阶段（个人视角）</strong>："我会考虑对其他人的影响"</li>
+                                <li><strong>第五阶段（社会视角）</strong>："AI如何影响整个社会？"</li>
+                            </ul>
+                            <p style="margin-top: 15px;"><strong>Q11的两次探讨对比：</strong></p>
+                            <ul>
+                                <li><strong>第四阶段（个人隐私）</strong>："我会留意隐私问题"</li>
+                                <li><strong>第五阶段（技术风险）</strong>："AI系统的技术风险有哪些？"</li>
+                            </ul>
+                        </div>
+
+                        <div class="conversation-area">
+                            <div class="message system">
+                                <div class="message-bubble">
+                                    🤖 系统：之前我们讨论了个人层面的影响（你在Q10第四阶段的回答），现在从社会层面看，AI如何影响社会？
+                                </div>
+                            </div>
+
+                            <div class="message user">
+                                <div class="message-bubble">
+                                    👤 你：从个人到社会，我觉得AI的影响远比我想象的深远...
+                                </div>
+                            </div>
+
+                            <div class="message system">
+                                <div class="message-bubble">
+                                    🤖 系统：这个视角的转变很重要！对比你对Q10的两次回答，你发现了什么？
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="navigation-buttons">
+                            <button class="btn btn-secondary" onclick="showStage(4)">← 上一阶段</button>
+                            <button class="btn btn-primary" onclick="showStage(6)">继续下一阶段 →</button>
+                        </div>
+                    </div>
+
+                    <!-- 阶段6：重新定义AI -->
+                    <div class="stage-content" id="stage-6">
+                        <div class="stage-header">
+                            <h2>✨ 第六阶段：重新定义AI</h2>
+                            <p>整合整个旅程，重新理解"AI是什么"</p>
+                        </div>
+
+                        <div class="journey-summary">
+                            <h3>🎉 旅程完成！作为"AI协作者"，我们发现了：</h3>
+                            <div class="summary-grid">
+                                <div class="summary-item">
+                                    <h4>🧠 认识AI</h4>
+                                    <p>不只看工具，更看合作关系</p>
+                                </div>
+                                <div class="summary-item">
+                                    <h4>💻 使用AI</h4>
+                                    <p>持续协作，灵活调整</p>
+                                </div>
+                                <div class="summary-item">
+                                    <h4>🔍 信任AI</h4>
+                                    <p>选择性信任，情境化判断</p>
+                                </div>
+                                <div class="summary-item">
+                                    <h4>🤖 与AI相处</h4>
+                                    <p>形成协作边界</p>
+                                </div>
+                                <div class="summary-item">
+                                    <h4>📖 理解AI</h4>
+                                    <p>从个人扩展到社会</p>
+                                </div>
+                                <div class="summary-item">
+                                    <h4>✨ 重新定义AI</h4>
+                                    <p>AI是合作对象，需持续协商</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="highlight-box" style="background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); border-color: #4caf50;">
+                            <h3 style="color: #2e7d32;">💡 核心发现</h3>
+                            <p>你的"AI协作者"风格不只是使用习惯，而是一套完整的<strong>认知框架</strong>。这套框架贯穿了你从认识到使用、从信任到相处、从理解到重新定义AI的整个历程。</p>
+                        </div>
+
+                        <div class="conversation-area">
+                            <div class="message system">
+                                <div class="message-bubble">
+                                    🤖 系统：通过这段认知旅程，你对"什么是AI"的理解有变化吗？作为"AI协作者"，你的AI使用原则是什么？
+                                </div>
+                            </div>
+
+                            <div class="message user">
+                                <div class="message-bubble">
+                                    👤 你：我现在明白，AI不只是工具，而是需要持续协商和调整的合作关系...
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="navigation-buttons">
+                            <button class="btn btn-secondary" onclick="showStage(5)">← 上一阶段</button>
+                            <button class="btn btn-primary" onclick="switchTab('architecture')">查看架构说明 →</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 架构说明标签页 -->
+                <div class="tab-content" id="architecture-tab">
+                    <div class="info-card">
+                        <h4>🎯 核心理念转变</h4>
+                        <ul>
+                            <li><strong>从：</strong>15题测试 → 风格类型 → 开放对话 → 概念探讨 → 结束</li>
+                            <li><strong>到：</strong>15题测试 → 风格框架建立 → 6阶段认知旅程 → 旅程回望 → AI素养重构</li>
+                        </ul>
+                    </div>
+
+                    <div class="info-card">
+                        <h4>🗺️ 6个认知阶段</h4>
+                        <ul>
+                            <li><strong>阶段1 - 认识AI (Q1, Q2)：</strong>探索用户如何认识和理解AI</li>
+                            <li><strong>阶段2 - 使用AI (Q3, Q4, Q5, Q6)：</strong>探索用户如何使用AI</li>
+                            <li><strong>阶段3 - 信任AI (Q7, Q8, Q9, Q12)：</strong>探索用户如何建立对AI的信任</li>
+                            <li><strong>阶段4 - 与AI相处 (Q10, Q11, Q14)：</strong>探索AI如何影响用户的生活</li>
+                            <li><strong>阶段5 - 理解AI (Q10, Q11跨阶段重复)：</strong>从个人视角扩展到社会/技术视角</li>
+                            <li><strong>阶段6 - 重新定义AI (Q14, Q15跨阶段重复)：</strong>整合旅程，重新理解"AI是什么"</li>
+                        </ul>
+                    </div>
+
+                    <div class="info-card">
+                        <h4>🔧 核心技术模块</h4>
+                        <ul>
+                            <li><strong>JourneyEngine：</strong>认知旅程规划与执行引擎</li>
+                            <li><strong>QuestionSpecificFollowUpExecutor：</strong>题目特定追问执行器（5层追问序列）</li>
+                            <li><strong>JourneyStateManager：</strong>旅程状态追踪与管理</li>
+                            <li><strong>FrameworkLensCard：</strong>认知框架持续显示组件</li>
+                        </ul>
+                    </div>
+
+                    <div class="info-card">
+                        <h4>⚡ 关键创新</h4>
+                        <ul>
+                            <li><strong>每道题都成为深度追问的起点：</strong>5层追问序列（经验唤起→框架连接→矛盾检测→AI素养桥接→反思深化）</li>
+                            <li><strong>风格框架作为认知透镜：</strong>用户的"AI协作者"框架贯穿整个旅程</li>
+                            <li><strong>跨阶段题目处理：</strong>Q10、Q11、Q14在不同阶段以不同视角重复探讨，引导对比发现</li>
+                            <li><strong>旅程可视化：</strong>用户明确感知"我在哪里"、"要去哪里"</li>
+                            <li><strong>矛盾检测机制：</strong>自动发现跨题行为模式（如Q7高分+Q8高分的"选择性信任"）</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- 演示模式标签页 -->
+                <div class="tab-content" id="demo-tab">
+                    <div class="highlight-box">
+                        <h3>🎬 自动演示模式</h3>
+                        <p>点击下方按钮开始自动演示整个认知旅程流程：</p>
+                        <div class="navigation-buttons">
+                            <button class="btn btn-primary" onclick="startDemo()">▶️ 开始演示</button>
+                            <button class="btn btn-secondary" onclick="stopDemo()">⏹️ 停止演示</button>
+                        </div>
+                    </div>
+
+                    <div class="info-card">
+                        <h4>📋 演说明将展示：</h4>
+                        <ol>
+                            <li>从15题测试结果生成"AI协作者"框架</li>
+                            <li>进入6个认知阶段，每阶段的典型对话</li>
+                            <li>题目特定追问的5层序列</li>
+                            <li>跨阶段题目的对比探讨</li>
+                            <li>旅程完成后的回望与总结</li>
+                            <li>AI素养概念的重构</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 阶段切换功能
+        function showStage(stageId) {
+            // 隐藏所有阶段内容
+            document.querySelectorAll('.stage-content').forEach(stage => {
+                stage.classList.remove('active');
+            });
+
+            // 显示选中的阶段
+            document.getElementById('stage-' + stageId).classList.add('active');
+
+            // 更新进度条
+            updateProgressBar(stageId);
+
+            // 更新侧边栏信息
+            updateSidebar(stageId);
+        }
+
+        function updateProgressBar(currentStage) {
+            const stages = document.querySelectorAll('.progress-stage');
+            stages.forEach((stage, index) => {
+                stage.classList.remove('completed', 'current', 'pending');
+                if (index + 1 < currentStage) {
+                    stage.classList.add('completed');
+                } else if (index + 1 === currentStage) {
+                    stage.classList.add('current');
+                } else {
+                    stage.classList.add('pending');
+                }
+            });
+        }
+
+        function updateSidebar(stageId) {
+            const stageNames = {
+                1: '认识AI',
+                2: '使用AI',
+                3: '信任AI',
+                4: '与AI相处',
+                5: '理解AI',
+                6: '重新定义AI'
+            };
+
+            const stageQuestions = {
+                1: ['Q1: 能力识别', 'Q2: 感知敏感度'],
+                2: ['Q3: 目标导向使用', 'Q4: 工具选择能力', 'Q5: 协作意愿', 'Q6: 学习倾向'],
+                3: ['Q7: 解决过程信任', 'Q8: 判断能力', 'Q9: 边界意识', 'Q12: 质疑精神'],
+                4: ['Q10: 外部性思考', 'Q11: 风险意识', 'Q14: 认知演进'],
+                5: ['Q10: 社会影响（跨阶段）', 'Q11: 技术风险（跨阶段）'],
+                6: ['Q14: 概念重构（跨阶段）', 'Q15: 自主原则']
+            };
+
+            // 更新当前阶段文本
+            const currentStageText = document.querySelector('.framework-card:nth-child(2) p');
+            if (currentStageText) {
+                currentStageText.textContent = `当前：第${stageId}阶段 - ${stageNames[stageId]}`;
+            }
+
+            // 更新题目列表
+            const questionsList = document.querySelector('.stage-questions ul');
+            if (questionsList) {
+                questionsList.innerHTML = stageQuestions[stageId].map(q => `<li>${q}</li>`).join('');
+                document.querySelector('.stage-questions h4').textContent = `第${stageId}阶段：${stageNames[stageId]}`;
+            }
+        }
+
+        // 标签页切换功能
+        function switchTab(tabName) {
+            // 隐藏所有标签页内容
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+
+            // 移除所有标签的active状态
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // 显示选中的标签页
+            document.getElementById(tabName + '-tab').classList.add('active');
+
+            // 激活对应的标签按钮
+            event.target.classList.add('active');
+        }
+
+        // 演示模式
+        let demoInterval = null;
+        let currentDemoStage = 1;
+
+        function startDemo() {
+            currentDemoStage = 1;
+            showStage(currentDemoStage);
+
+            demoInterval = setInterval(() => {
+                currentDemoStage++;
+                if (currentDemoStage > 6) {
+                    stopDemo();
+                    alert('🎉 演示完成！点击"架构说明"标签查看详细技术信息。');
+                    return;
+                }
+                showStage(currentDemoStage);
+            }, 5000); // 每5秒切换一个阶段
+        }
+
+        function stopDemo() {
+            if (demoInterval) {
+                clearInterval(demoInterval);
+                demoInterval = null;
+            }
+        }
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            showStage(3); // 默认显示第3阶段
+        });
+    </script>
+</body>
+</html>

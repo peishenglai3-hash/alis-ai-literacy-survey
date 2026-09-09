@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>v3.3 认知地图布局 · 访谈界面可视化</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  /* ===== 设计令牌：冷静的研究仪器 ===== */
+  :root{
+    --bg:        #efebe3;   /* 暖纸色底，长时间访谈不刺眼 */
+    --focus:     #ffffff;   /* 中央焦点：纯白卡片，视觉权重最高 */
+    --awareness: #f6f3ec;   /* 右侧觉察：浅暖，配合透明度"后退" */
+    --drill:     #ffffff;
+    --line:      #e3ddd1;
+    --line-soft: #ece7dc;
+
+    --ink:       #211f26;   /* 主文字：近黑暖墨 */
+    --ink-2:     #4a4754;
+    --muted:     #8d8896;
+    --faint:     #b4b0b9;
+
+    --accent:    #6957c9;   /* 紫：当前/进行中 */
+    --accent-soft:#ece9f7;
+    --done:      #3f9d77;   /* 绿：已完成 */
+    --done-soft: #e4f1ea;
+    --ai:        #bd7a2e;   /* 琥珀：AI推测内容（需标注） */
+    --ai-soft:   #f5ead7;
+
+    --r-card: 14px;
+    --r-inner: 9px;
+    --shadow-card: 0 1px 2px rgba(33,31,38,.04), 0 18px 40px -22px rgba(33,31,38,.22);
+    --shadow-soft: 0 1px 2px rgba(33,31,38,.05);
+
+    --mono: "JetBrains Mono", ui-monospace, "SF Mono", monospace;
+    --serif: "Instrument Serif", "Songti SC", Georgia, serif;
+    --sans: -apple-system, BlinkMacSystemFont, "PingFang SC", "Noto Sans SC", "Microsoft YaHei", system-ui, sans-serif;
+  }
+
+  *{ box-sizing:border-box; }
+  html,body{ height:100%; margin:0; }
+  body{
+    font-family:var(--sans);
+    color:var(--ink);
+    background:
+      radial-gradient(1200px 600px at 80% -10%, #f6f2ea 0%, transparent 60%),
+      radial-gradient(900px 500px at -10% 110%, #eee9df 0%, transparent 55%),
+      var(--bg);
+    overflow:hidden;            /* 关键：页面零滚动——这正是 v3.3 要证明的点 */
+    -webkit-font-smoothing:antialiased;
+  }
+
+  .app{ height:100vh; display:flex; flex-direction:column; }
+
+  /* ===== 顶部说明条 ===== */
+  .topbar{
+    flex:0 0 auto; height:46px;
+    display:flex; align-items:center; gap:16px;
+    padding:0 22px;
+    border-bottom:1px solid var(--line);
+    background:rgba(247,244,237,.7);
+    backdrop-filter:blur(8px);
+  }
+  .topbar .brand{
+    font-family:var(--serif); font-size:19px; letter-spacing:.2px;
+  }
+  .topbar .brand b{ font-style:italic; }
+  .topbar .sep{ width:1px; height:18px; background:var(--line); }
+  .topbar .claim{ font-size:12.5px; color:var(--ink-2); }
+  .topbar .claim em{ font-style:normal; color:var(--accent); font-weight:600; }
+  .legend{ margin-left:auto; display:flex; gap:14px; font-size:11px; color:var(--muted); }
+  .legend span{ display:inline-flex; align-items:center; gap:6px; }
+  .dot{ width:9px; height:9px; border-radius:3px; display:inline-block; }
+  .dot.focus{ background:#fff; border:1px solid var(--line); }
+  .dot.aware{ background:var(--awareness); border:1px solid var(--line-soft); }
+  .dot.drill{ background:#fff; border:1px dashed var(--faint); }
+
+  /* ===== 认知地图布局（忠实于 v3.3 §6.3） ===== */
+  .cognitive-map-layout{
+    flex:1 1 auto; min-height:0;
+    display:grid;
+    grid-template-columns: 1fr 360px;
+    grid-template-rows: 1fr auto;
+    grid-template-areas:
+      "focus  awareness"
+      "drill  drill";
+    gap:22px;
+    max-width:1400px; width:100%;
+    margin:0 auto;
+    padding:22px;
+  }
+
+  /* 区域小角标 */
+  .zone-tag{
+    position:absolute; top:14px; right:16px;
+    font-family:var(--mono); font-size:10px; letter-spacing:.08em;
+    text-transform:uppercase; color:var(--faint);
+    display:flex; align-items:center; gap:6px;
+  }
+  .zone-tag i{ width:6px;height:6px;border-radius:50%; background:var(--faint); font-style:normal; }
+
+  /* ===== 中央焦点区 ===== */
+  .focus-zone{
+    grid-area:focus; position:relative;
+    background:var(--focus);
+    border-radius:var(--r-card);
+    box-shadow:var(--shadow-card);
+    padding:30px 34px 24px;
+    display:flex; flex-direction:column;
+    overflow:hidden;
+    animation:rise .6s cubic-bezier(.2,.7,.2,1) both;
+  }
+  .focus-head{ display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
+  .stage-pill{
+    display:inline-flex; align-items:center; gap:8px;
+    font-family:var(--mono); font-size:11px; letter-spacing:.04em;
+    color:var(--accent); background:var(--accent-soft);
+    padding:5px 11px; border-radius:999px; font-weight:500;
+  }
+  .stage-pill b{ font-weight:600; }
+  .qno{ font-family:var(--serif); font-size:15px; color:var(--muted); }
+  .qno b{ color:var(--ink); font-size:17px; }
+
+  .stage-progress{ margin-left:auto; display:flex; align-items:center; gap:9px; font-size:11.5px; color:var(--muted); }
+  .stage-progress .sg{ display:inline-flex; align-items:center; gap:5px; }
+  .stage-progress .mk{ width:8px;height:8px;border-radius:50%; }
+  .mk.done{ background:var(--done); }
+  .mk.cur{ background:var(--accent); box-shadow:0 0 0 3px var(--accent-soft); }
+  .mk.todo{ background:transparent; border:1px solid var(--faint); }
+  .stage-progress .sep{ width:14px;height:1px;background:var(--line); }
+
+  .question{
+    font-size:23px; line-height:1.5; font-weight:500;
+    margin:20px 0 12px; max-width:46ch;
+    letter-spacing:.1px;
+  }
+  .keywords{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:18px; }
+  .kw{
+    font-size:12px; color:var(--ink-2);
+    background:var(--line-soft); border:1px solid var(--line);
+    padding:4px 10px; border-radius:999px;
+  }
+
+  .answer-block{
+    border:1px solid var(--line); border-left:3px solid var(--accent);
+    border-radius:var(--r-inner);
+    padding:14px 16px; background:#fcfbf8;
+    margin-bottom:14px;
+  }
+  .answer-block .lab{ font-family:var(--mono); font-size:10.5px; letter-spacing:.06em; color:var(--muted); text-transform:uppercase; }
+  .answer-block .txt{ font-size:14.5px; color:var(--ink-2); margin:6px 0 12px; line-height:1.55; }
+  .scale{ display:flex; align-items:center; gap:6px; }
+  .scale .nums{ display:flex; gap:5px; }
+  .num{
+    width:30px; height:30px; border-radius:8px;
+    display:flex; align-items:center; justify-content:center;
+    font-family:var(--mono); font-size:13px; color:var(--ink-2);
+    background:#fff; border:1px solid var(--line); cursor:pointer;
+    transition:all .15s ease;
+  }
+  .num:hover{ border-color:var(--accent); color:var(--accent); }
+  .num.sel{ background:var(--accent); color:#fff; border-color:var(--accent); box-shadow:0 4px 12px -4px rgba(105,87,201,.5); }
+  .scale .verdict{ margin-left:10px; font-size:13px; color:var(--ink); }
+  .scale .verdict b{ font-family:var(--mono); color:var(--accent); }
+
+  .quick-input{
+    margin-top:auto;
+    display:flex; align-items:center; gap:10px;
+    background:#fff; border:1px solid var(--line); border-radius:var(--r-inner);
+    padding:9px 12px;
+  }
+  .quick-input .plus{ color:var(--done); font-weight:600; }
+  .quick-input input{
+    border:0; outline:0; background:transparent; flex:1;
+    font-family:var(--sans); font-size:13.5px; color:var(--ink);
+  }
+  .quick-input input::placeholder{ color:var(--faint); }
+  .quick-input .hint{ font-family:var(--mono); font-size:10px; color:var(--faint); }
+
+  .nav-row{ display:flex; align-items:center; gap:10px; margin-top:12px; }
+  .btn{
+    font-family:var(--sans); font-size:13.5px; font-weight:500;
+    padding:9px 18px; border-radius:9px; cursor:pointer;
+    border:1px solid var(--line); background:#fff; color:var(--ink-2);
+    transition:all .15s ease;
+  }
+  .btn:hover{ border-color:var(--faint); color:var(--ink); }
+  .btn.primary{ background:var(--ink); color:#fff; border-color:var(--ink); margin-left:auto; }
+  .btn.primary:hover{ background:#000; }
+  .nav-row .pos{ font-family:var(--mono); font-size:11px; color:var(--muted); }
+
+  /* ===== 右侧觉察带（思维气泡） ===== */
+  .awareness-zone{
+    grid-area:awareness; position:relative;
+    background:var(--awareness);
+    border-radius:var(--r-card);
+    border:1px solid var(--line-soft);
+    padding:20px 18px;
+    opacity:.62;                       /* 默认低透明度：不抢注意力 */
+    transition:opacity .25s ease;
+    overflow-y:auto;
+    animation:rise .6s cubic-bezier(.2,.7,.2,1) .05s both;
+  }
+  .awareness-zone:hover{ opacity:.92; }  /* 悬停提升：准备交互 */
+  .awareness-zone::-webkit-scrollbar{ width:6px; }
+  .awareness-zone::-webkit-scrollbar-thumb{ background:var(--faint); border-radius:3px; }
+
+  .aw-head{ display:flex; align-items:baseline; gap:8px; margin-bottom:4px; }
+  .aw-head h3{ margin:0; font-family:var(--sans); font-size:14px; font-weight:600; }
+  .aw-head .cnt{ font-family:var(--mono); font-size:12px; color:var(--muted); }
+  .aw-sub{ font-size:11px; color:var(--faint); margin-bottom:14px; }
+
+  .bubble{
+    background:#fff; border:1px solid var(--line-soft);
+    border-radius:11px; padding:11px 12px; margin-bottom:10px;
+    box-shadow:var(--shadow-soft);
+    transition:transform .15s ease, box-shadow .15s ease;
+    cursor:pointer;
+  }
+  .bubble:hover{ transform:translateY(-1px); box-shadow:0 6px 16px -8px rgba(33,31,38,.25); }
+  .bubble .ts{ font-family:var(--mono); font-size:10.5px; color:var(--faint); display:flex; align-items:center; gap:5px; }
+  .bubble .body{ font-size:13px; color:var(--ink); line-height:1.5; margin:5px 0 7px; }
+  .bubble .src{ font-family:var(--mono); font-size:9.5px; letter-spacing:.03em; }
+  .src{ display:inline-flex; align-items:center; gap:4px; padding:2px 7px; border-radius:999px; }
+  .src.preset{ color:var(--muted); background:#f0ede5; }
+  .src.cross{ color:var(--accent); background:var(--accent-soft); }
+  .src.ai{ color:var(--ai); background:var(--ai-soft); }
+  .src.manual{ color:var(--done); background:var(--done-soft); }
+  .bubble .link{ font-family:var(--mono); font-size:10px; color:var(--accent); margin-top:6px; display:inline-flex; gap:4px; }
+
+  .add-thought{
+    margin-top:6px; display:flex; align-items:center; gap:8px;
+    border:1px dashed var(--faint); border-radius:10px;
+    padding:9px 11px; color:var(--muted); font-size:12.5px;
+  }
+  .add-thought .kbd{ margin-left:auto; font-family:var(--mono); font-size:10px; color:var(--faint); border:1px solid var(--line); border-radius:4px; padding:1px 5px; }
+
+  /* ===== 下方钻取区（四思考窗口） ===== */
+  .drill-zone{
+    grid-area:drill; position:relative;
+    background:var(--drill);
+    border:1px solid var(--line);
+    border-radius:var(--r-card);
+    padding:12px 16px;
+    box-shadow:var(--shadow-soft);
+    animation:rise .6s cubic-bezier(.2,.7,.2,1) .1s both;
+  }
+  .drill-tabs{ display:flex; gap:6px; }
+  .tab{
+    display:inline-flex; align-items:center; gap:7px;
+    font-size:13px; color:var(--ink-2);
+    background:transparent; border:1px solid transparent;
+    padding:8px 13px; border-radius:9px; cursor:pointer;
+    transition:all .15s ease;
+  }
+  .tab:hover{ background:#f7f4ed; }
+  .tab.active{ background:#fff; border-color:var(--line); color:var(--ink); font-weight:500; box-shadow:var(--shadow-soft); }
+  .tab .ic{ font-size:14px; }
+  .tab .badge{ font-family:var(--mono); font-size:9.5px; color:var(--faint); }
+
+  .drill-body{
+    margin-top:10px; padding:14px 16px 4px;
+    border-top:1px solid var(--line-soft);
+    display:none;
+  }
+  .drill-body.open{ display:block; animation:rise .3s ease both; }
+  .drill-body h4{ margin:0 0 6px; font-size:13px; color:var(--ink); font-weight:600; }
+  .drill-body p{ margin:0 0 12px; font-size:13.5px; line-height:1.65; color:var(--ink-2); }
+  .drill-body p .hl{ background:var(--accent-soft); color:var(--accent); padding:1px 5px; border-radius:4px; }
+
+  @keyframes rise{ from{ opacity:0; transform:translateY(10px);} to{ opacity:1; transform:none;} }
+
+  /* 响应式：窄屏降级单栏（v3.3 §6.3） */
+  @media (max-width:1024px){
+    body{ overflow:auto; }
+    .cognitive-map-layout{
+      grid-template-columns:1fr;
+      grid-template-areas:"focus" "awareness" "drill";
+    }
+    .awareness-zone{ position:static; opacity:1; max-height:none; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- 顶部说明 -->
+  <header class="topbar">
+    <div class="brand">认知地图 · <b>Cognitive Map</b></div>
+    <div class="sep"></div>
+    <div class="claim">v3.3 访谈界面 · 中央焦点 + 右侧觉察带 + 下方钻取 · <em>一屏可见、零滚动</em></div>
+    <div class="legend">
+      <span><i class="dot focus"></i>焦点区</span>
+      <span><i class="dot aware"></i>觉察带</span>
+      <span><i class="dot drill"></i>钻取区</span>
+    </div>
+  </header>
+
+  <!-- 认知地图主体 -->
+  <main class="cognitive-map-layout">
+
+    <!-- 中央焦点区 -->
+    <section class="focus-zone">
+      <div class="zone-tag"><i></i>FOCUS · 必须看</div>
+
+      <div class="focus-head">
+        <span class="stage-pill">阶段 2 · <b>使用</b></span>
+        <span class="qno"><b>Q3</b> / 本阶段 1·2·<b style="color:var(--accent)">3</b></span>
+        <div class="stage-progress">
+          <span class="sg"><i class="mk done"></i>初识</span>
+          <i class="sep"></i>
+          <span class="sg"><i class="mk cur"></i>使用</span>
+          <i class="sep"></i>
+          <span class="sg"><i class="mk todo"></i>信任</span>
+          <i class="sep"></i>
+          <span class="sg"><i class="mk todo"></i>反思</span>
+        </div>
+      </div>
+
+      <h1 class="question">我通常能够利用 AI 帮助自己完成真正想完成的事情，而不仅仅是尝试新功能。</h1>
+
+      <div class="keywords">
+        <span class="kw">目标导向</span>
+        <span class="kw">真实任务</span>
+        <span class="kw">工具利用</span>
+      </div>
+
+      <div class="answer-block">
+        <div class="lab">受访者作答</div>
+        <div class="txt">"我通常能够利用AI帮助自己完成真正想完成的事情，而不仅仅是尝试新功能。"</div>
+        <div class="scale">
+          <div class="nums">
+            <span class="num">1</span><span class="num">2</span><span class="num">3</span>
+            <span class="num sel">4</span>
+            <span class="num">5</span><span class="num">6</span><span class="num">7</span>
+          </div>
+          <span class="verdict"><b>4</b> · 有点同意</span>
+        </div>
+      </div>
+
+      <div class="quick-input">
+        <span class="plus">＋</span>
+        <input type="text" placeholder="记录受访者的关键回复（关键词式，不是大段文本）…">
+        <span class="hint">⏎ 保存</span>
+      </div>
+
+      <div class="nav-row">
+        <button class="btn">← 上一题</button>
+        <span class="pos">3 / 15</span>
+        <button class="btn primary">下一题 →</button>
+      </div>
+    </section>
+
+    <!-- 右侧觉察带 -->
+    <aside class="awareness-zone">
+      <div class="zone-tag"><i></i>AWARENESS · 可能想到</div>
+
+      <div class="aw-head">
+        <h3>💭 想想</h3>
+        <span class="cnt">(4)</span>
+      </div>
+      <div class="aw-sub">余光可见 · 悬停聚焦 · 单击展开</div>
+
+      <div class="bubble">
+        <div class="ts">⏱ 14:28</div>
+        <div class="body">这个人如何理解"AI"？</div>
+        <span class="src preset">🏷 预设 · Schema</span>
+      </div>
+
+      <div class="bubble">
+        <div class="ts">⏱ 14:25</div>
+        <div class="body">他的判断依据是什么？</div>
+        <span class="src preset">🏷 预设 · Schema</span>
+      </div>
+
+      <div class="bubble">
+        <div class="ts">⏱ 14:22</div>
+        <div class="body">提到具体工具使用 → 关联 Q3</div>
+        <span class="src cross">🔗 跨题 · 规则</span>
+        <div class="link">↗ 跳转 Q3</div>
+      </div>
+
+      <div class="bubble">
+        <div class="ts">⏱ 14:20</div>
+        <div class="body">高分但语气犹豫？可能边界模糊</div>
+        <span class="src ai">✦ AI 推测 · 受访者信号</span>
+      </div>
+
+      <div class="add-thought">
+        <span>＋ 添加想法</span>
+        <span class="kbd">Enter</span>
+      </div>
+    </aside>
+
+    <!-- 下方钻取区 -->
+    <section class="drill-zone">
+      <div class="zone-tag"><i></i>DRILL · 想深挖（默认折叠）</div>
+
+      <div class="drill-tabs">
+        <button class="tab" data-tab="understand"><span class="ic">📘</span>题目理解</button>
+        <button class="tab active" data-tab="story"><span class="ic">📖</span>经验叙事 <span class="badge">展开</span></button>
+        <button class="tab" data-tab="explain"><span class="ic">🎚</span>选择解释</button>
+        <button class="tab" data-tab="literacy"><span class="ic">🔗</span>素养关联</button>
+      </div>
+
+      <div class="drill-body open" data-body="story">
+        <h4>经验叙事 · Q3</h4>
+        <p>关注受访者使用 AI 完成"真实任务"的具体经历。引导其回忆一次<span class="hl">目标明确</span>的使用场景：当时想完成什么、AI 扮演了什么角色、结果是否达到预期。</p>
+        <p>若回答停留在"试过新功能"，可追问：<span class="hl">"最近一次你用 AI 真正解决问题是什么时候？"</span>，把话题从"尝鲜"拉回"实用"。</p>
+      </div>
+      <div class="drill-body" data-body="understand">
+        <h4>题目理解 · Q3</h4>
+        <p>本题测量 <span class="hl">目标导向性</span>：受访者使用 AI 时，是被"功能本身"驱动（尝鲜），还是被"想完成的事"驱动（实用）。</p>
+      </div>
+      <div class="drill-body" data-body="explain">
+        <h4>选择解释 · Q3</h4>
+        <p>选 1–3（偏尝鲜）与选 5–7（偏实用）反映不同的工具关系。4 分处于边界，注意 <span class="hl">语气犹豫</span> 的信号。</p>
+      </div>
+      <div class="drill-body" data-body="literacy">
+        <h4>素养关联 · Q3</h4>
+        <p>关联维度 <span class="hl">使用（U·实用者）</span>。可与 Q4（频率）、Q8（验证）形成跨题对照。</p>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+  // 钻取区 tab 切换：同一时间只展开一个
+  const tabs = document.querySelectorAll('.tab');
+  const bodies = document.querySelectorAll('.drill-body');
+  tabs.forEach(t=>{
+    t.addEventListener('click', ()=>{
+      tabs.forEach(x=>{ x.classList.remove('active'); const b=x.querySelector('.badge'); if(b) b.remove(); });
+      t.classList.add('active');
+      if(!t.querySelector('.badge')){ const s=document.createElement('span'); s.className='badge'; s.textContent='展开'; t.appendChild(s); }
+      const key=t.dataset.tab;
+      bodies.forEach(b=> b.classList.toggle('open', b.dataset.body===key));
+    });
+  });
+
+  // 答案选择器：点击切换
+  document.querySelectorAll('.num').forEach(n=>{
+    n.addEventListener('click', ()=>{
+      document.querySelectorAll('.num').forEach(x=>x.classList.remove('sel'));
+      n.classList.add('sel');
+      document.querySelector('.verdict b').textContent = n.textContent;
+    });
+  });
+</script>
+</body>
+</html>
