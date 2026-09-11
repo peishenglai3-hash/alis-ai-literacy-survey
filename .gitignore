@@ -32,6 +32,7 @@
 # Sensitive raw archive and environment-specific deployment helper
 交互记录/ALIS开发交互全记录_人机协作原始档案.docx
 docs/ALIS原生人机交互记录_*.docx
+docs/ALIS*/
 alis-mvp/ops/采集机_ALIS隧道.bat
 
 # Editors and OS files
